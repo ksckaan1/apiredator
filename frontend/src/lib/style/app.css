@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+  @apply bg-default-bg text-zinc-100;
+}
+
+/* :not(input, textarea) {
+  @apply select-none;
+} */
+
+hr {
+  @apply border-t-white/10;
+}
