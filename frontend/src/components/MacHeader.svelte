@@ -12,5 +12,7 @@
   class="flex items-center h-10 pl-20 border-b bg-default-bg border-white/20"
   on:dblclick|self={onTitleBarDoubleClick}
 >
-  <h1 class="cursor-default select-none">Bomber</h1>
+  <h1 class="cursor-default select-none">
+    <span class="text-primary">API</span>redator
+  </h1>
 </div>
