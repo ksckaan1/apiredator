@@ -32,14 +32,33 @@ func (a *AppService) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *AppService) SendRequest(data domain.Data) error {
+func (a *AppService) SetCurrentRequest(data domain.Data) error {
 	a.currentWork = work.New(a.logger, &data)
+	return nil
+}
+
+func (a *AppService) GetCurrentRequest() (*domain.Data, error) {
+	if a.currentWork == nil {
+		return nil, nil
+	}
+	return a.currentWork.GetDetails(), nil
+}
+
+func (a *AppService) StartCurrentRequest() error {
+	if a.currentWork == nil {
+		return errors.New("current work is not set")
+	}
 
 	err := a.currentWork.Start(context.Background())
 	if err != nil {
 		return fmt.Errorf("start work: %w", err)
 	}
 
+	return nil
+}
+
+func (a *AppService) ResetCurrentRequest() error {
+	a.currentWork = nil
 	return nil
 }
 

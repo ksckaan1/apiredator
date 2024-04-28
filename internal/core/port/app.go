@@ -8,7 +8,10 @@ import (
 
 type AppService interface {
 	Startup(ctx context.Context)
-	SendRequest(data domain.Data) error
+	SetCurrentRequest(data domain.Data) error
+	GetCurrentRequest() (*domain.Data, error)
+	StartCurrentRequest() error
+	ResetCurrentRequest() error
 	SelectFiles(isMultiple bool) []string
 	GetStats() (*domain.Stat, error)
 }
