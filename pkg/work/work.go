@@ -100,7 +100,7 @@ func (w *Work) run() error {
 		for i := range w.data.Options.NumberOfClients {
 			wg.Add(1)
 			go func() {
-				w.logger.Debug("worker started",
+				w.logger.Debug("client started",
 					"num", i,
 				)
 				if w.data.Options.Duration.IsDurationActive {
@@ -118,7 +118,7 @@ func (w *Work) run() error {
 						}
 					}
 				}
-				w.logger.Debug("worker finished",
+				w.logger.Debug("client finished",
 					"num", i,
 				)
 				wg.Done()
