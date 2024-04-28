@@ -48,6 +48,8 @@ func (w *Work) Start(ctx context.Context) error {
 		w.ctx, w.ctxCancel = context.WithCancel(ctx)
 	}
 
+	w.reset()
+
 	err := w.run()
 	if err != nil {
 		return fmt.Errorf("run: %w", err)
@@ -176,4 +178,16 @@ func (w *Work) addHeaders(req *http.Request, header []domain.KeyValueData) {
 		}
 		req.Header.Add(item.Key, item.Value)
 	}
+}
+
+func (w *Work) GetDetails() *domain.Data {
+	return w.data
+}
+
+func (w *Work) reset() {
+	w.stat.StartedAt = time.Time{}
+	w.stat.EndedAt = time.Time{}
+	w.stat.Duration = 0
+	w.stat.Completed = 0
+	w.stat.StatusCodes = map[int]uint64{}
 }

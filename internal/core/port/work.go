@@ -12,4 +12,5 @@ type Work interface {
 	IsActive() bool
 	Wait()
 	GetStats() domain.Stat
+	GetDetails() *domain.Data
 }
