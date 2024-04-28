@@ -15,18 +15,18 @@
     FormData,
   } from "$types/custom";
   import {
-    GetStats,
-    SendRequest,
-    WaitWork,
+    GetCurrentRequest,
+    SetCurrentRequest,
+    StartCurrentRequest,
   } from "$lib/wailsjs/go/service/AppService";
   import { domain } from "$lib/wailsjs/go/models";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
 
-  // let urlValue: string = "{{host}}/api/v2/user/{{user_id}}";
   let urlValue: string = "https://jsonplaceholder.typicode.com/todos/1";
-  let activeRequestMethod: string = "get";
+  let activeRequestMethod: string = "GET";
 
-  let activeTab: RequestTab = "body";
+  let activeTab: RequestTab = "options";
 
   let numberOfRequestsValue: number = 1;
   let numberOfClientsValue: number = 1;
@@ -36,12 +36,9 @@
   let durationMinutesValue: number = 0;
   let durationSecondsValue: number = 0;
 
-  let activeBodyType: BodyType = "raw";
+  let activeBodyType: BodyType = "none";
   let activeLanguage: Language = "json";
-  let rawBodyValue: string = `{
-    "username": "me@kaanksc.com",
-    "password": "asdf1234"
-}`;
+  let rawBodyValue: string = ``;
   let binaryValue: string[] = [];
   let formdataValue: FormData[] = [];
   let xwwwformdataValue: KeyValueData[] = [];
@@ -89,30 +86,30 @@
     },
   ];
 
-  let headerRows: KeyValueData[] = [
-    {
-      key: "Content-Type",
-      value: "application/json",
-      is_active: true,
-    },
-    {
-      key: "Authorization",
-      value: "Bearer {{token}}",
-      is_active: true,
-    },
-    {
-      key: "user-id",
-      value: "{{user_id}}",
-      is_active: true,
-    },
-    {
-      key: "unnecessary",
-      value: "example",
-      is_active: false,
-    },
-  ];
+  let headerRows: KeyValueData[] = [];
 
-  let stats: any;
+  onMount(async () => {
+    // try {
+    let cr = await GetCurrentRequest();
+
+    if (cr) {
+      urlValue = cr.request.url;
+      activeRequestMethod = cr.request.method;
+      numberOfRequestsValue = cr.options.number_of_requests;
+      numberOfClientsValue = cr.options.number_of_clients;
+      isDurationActive = cr.options.duration.is_duration_active;
+      durationHoursValue = cr.options.duration.hours;
+      durationMinutesValue = cr.options.duration.minutes;
+      durationSecondsValue = cr.options.duration.seconds;
+      activeBodyType = cr.request.body.type as BodyType;
+      activeLanguage = cr.request.body.language as Language;
+      rawBodyValue = cr.request.body.raw_value;
+      binaryValue = cr.request.body.binary;
+      formdataValue = cr.request.body.formdata as FormData[];
+      xwwwformdataValue = cr.request.body.xwwwformdata;
+    }
+    // }
+  });
 
   const onSendBtnClicked = async () => {
     let data: domain.Data = new domain.Data({
@@ -141,8 +138,11 @@
       },
     });
     try {
-      await SendRequest(data);
-      goto("/status");
+      await SetCurrentRequest(data);
+      await StartCurrentRequest();
+      goto("/status", {
+        replaceState: true,
+      });
     } catch (err) {
       console.error(err);
     }
@@ -221,8 +221,4 @@
       bind:xwwwformdataValue
     />
   {/if}
-
-  <pre>
-{JSON.stringify(stats, null, "\t")}
-  </pre>
 </div>
