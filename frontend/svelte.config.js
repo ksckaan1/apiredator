@@ -10,6 +10,7 @@ const config = {
 			"$components": "src/components",
 			"$styles": "src/lib/style",
 			"$types": "src/lib/types",
+			"$assets": "src/lib/assets",
 			"$stores": "src/store"
 		}
 	},

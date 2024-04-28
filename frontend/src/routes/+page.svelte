@@ -1,8 +1,19 @@
 <script lang="ts">
-  import { screenStore } from "../store/screen";
+  import { goto } from "$app/navigation";
+  import logo from "$assets/logo.svg";
+  import { onMount } from "svelte";
+  onMount(() => {
+    setTimeout(() => {
+      goto("/new-request", {
+        replaceState: true,
+      });
+    }, 3000);
+  });
 </script>
 
-<h1>Welcome</h1>
-
-<a href="/new-request">New Request</a>
-<a href="/status">Status</a>
+<div
+  style="--wails-draggable:drag"
+  class="w-screen h-screen flex justify-center items-center"
+>
+  <img src={logo} alt="logo" class="w-48" />
+</div>
