@@ -203,7 +203,7 @@ export namespace domain {
 	
 	export class Stat {
 	    completed: number;
-	    request_per_second: number;
+	    request_per_second: number[];
 	    status_codes: {[key: number]: number};
 	    // Go type: time
 	    started_at: any;
