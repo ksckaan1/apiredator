@@ -11,6 +11,7 @@ const config = {
 			"$styles": "src/lib/style",
 			"$types": "src/lib/types",
 			"$assets": "src/lib/assets",
+			"$utils": "src/lib/utils",
 			"$stores": "src/store"
 		}
 	},
