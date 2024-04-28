@@ -42,8 +42,12 @@ func New(lg port.Logger, data *domain.Data) *Work {
 
 func (w *Work) Start(ctx context.Context) error {
 	if w.data.Options.Duration.IsDurationActive {
-		dur := time.Duration(w.data.Options.Duration.Hours + w.data.Options.Duration.Minutes + w.data.Options.Duration.Seconds)
+		seconds := time.Second * time.Duration(w.data.Options.Duration.Seconds)
+		minutes := time.Minute * time.Duration(w.data.Options.Duration.Minutes)
+		hours := time.Hour * time.Duration(w.data.Options.Duration.Hours)
+		dur := hours + minutes + seconds
 		w.ctx, w.ctxCancel = context.WithTimeout(ctx, dur)
+		fmt.Println("dur", dur.String())
 	} else {
 		w.ctx, w.ctxCancel = context.WithCancel(ctx)
 	}
@@ -88,28 +92,64 @@ func (w *Work) run() error {
 			w.ctxCancel()
 			w.logger.Info("work finished")
 		}()
-		for range w.data.Options.NumberOfRequests {
-			req, err := w.generateRequest(w.data.Request)
-			if err != nil {
-				w.err = fmt.Errorf("generate request: %w", err)
-				break
-			}
 
-			resp, err := w.client.Do(req)
-			if err != nil {
-				w.err = fmt.Errorf("client do: %w", err)
-				break
-			}
+		go w.checkPeriodically()
 
-			err = resp.Body.Close()
-			if err != nil {
-				w.err = fmt.Errorf("resp body close: %w", err)
-				break
-			}
+		var wg sync.WaitGroup
 
-			w.addResponse(resp.StatusCode)
+		for i := range w.data.Options.NumberOfClients {
+			wg.Add(1)
+			go func() {
+				w.logger.Debug("worker started",
+					"num", i,
+				)
+				if w.data.Options.Duration.IsDurationActive {
+					for {
+						err := w.makeRequest()
+						if err != nil {
+							break
+						}
+					}
+				} else {
+					for range w.data.Options.NumberOfRequests {
+						err := w.makeRequest()
+						if err != nil {
+							break
+						}
+					}
+				}
+				w.logger.Debug("worker finished",
+					"num", i,
+				)
+				wg.Done()
+			}()
 		}
+		wg.Wait()
 	}()
+	return nil
+}
+
+func (w *Work) makeRequest() error {
+	req, err := w.generateRequest(w.data.Request)
+	if err != nil {
+		w.err = fmt.Errorf("generate request: %w", err)
+		return w.err
+	}
+
+	resp, err := w.client.Do(req)
+	if err != nil {
+		w.err = fmt.Errorf("client do: %w", err)
+		return w.err
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		w.err = fmt.Errorf("resp body close: %w", err)
+		return w.err
+	}
+
+	w.addResponse(resp.StatusCode)
+
 	return nil
 }
 
@@ -190,4 +230,23 @@ func (w *Work) reset() {
 	w.stat.Duration = 0
 	w.stat.Completed = 0
 	w.stat.StatusCodes = map[int]uint64{}
+	w.stat.RequestPerSeconds = []uint64{}
+}
+
+func (w *Work) checkPeriodically() {
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	var lastCompleted uint64
+	for {
+		select {
+		case <-w.ctx.Done():
+			return
+		case <-ticker.C:
+			w.mut.Lock()
+			w.stat.RequestPerSeconds = append(w.stat.RequestPerSeconds, w.stat.Completed-lastCompleted)
+			lastCompleted = w.stat.Completed
+			w.stat.Duration = time.Since(w.stat.StartedAt)
+			w.mut.Unlock()
+		}
+	}
 }
