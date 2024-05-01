@@ -7,7 +7,7 @@
       goto("/new-request", {
         replaceState: true,
       });
-    }, 3000);
+    }, 1000);
   });
 </script>
 

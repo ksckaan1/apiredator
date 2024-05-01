@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"slices"
 	"sync"
 	"time"
 
@@ -41,7 +42,7 @@ func New(lg port.Logger, data *domain.Data) *Work {
 }
 
 func (w *Work) Start(ctx context.Context) error {
-	if w.data.Options.Duration.IsDurationActive {
+	if w.data.Options.TestType == domain.TTDuration {
 		seconds := time.Second * time.Duration(w.data.Options.Duration.Seconds)
 		minutes := time.Minute * time.Duration(w.data.Options.Duration.Minutes)
 		hours := time.Hour * time.Duration(w.data.Options.Duration.Hours)
@@ -88,7 +89,7 @@ func (w *Work) run() error {
 		defer func() {
 			w.stat.EndedAt = time.Now()
 			w.isActive = false
-			w.stat.Duration = w.stat.EndedAt.Sub(w.stat.StartedAt)
+			w.stat.PassedDuration = w.stat.EndedAt.Sub(w.stat.StartedAt)
 			w.ctxCancel()
 			w.logger.Info("work finished")
 		}()
@@ -103,7 +104,7 @@ func (w *Work) run() error {
 				w.logger.Debug("client started",
 					"num", i,
 				)
-				if w.data.Options.Duration.IsDurationActive {
+				if w.data.Options.TestType == domain.TTDuration {
 					for {
 						err := w.makeRequest()
 						if err != nil {
@@ -156,7 +157,7 @@ func (w *Work) makeRequest() error {
 func (w *Work) addResponse(statusCode int) {
 	w.mut.Lock()
 	defer w.mut.Unlock()
-	w.stat.Completed++
+	w.stat.SentCount++
 	_, ok := w.stat.StatusCodes[statusCode]
 	if !ok {
 		w.stat.StatusCodes[statusCode] = 0
@@ -227,26 +228,54 @@ func (w *Work) GetDetails() *domain.Data {
 func (w *Work) reset() {
 	w.stat.StartedAt = time.Time{}
 	w.stat.EndedAt = time.Time{}
-	w.stat.Duration = 0
-	w.stat.Completed = 0
+	w.stat.PassedDuration = 0
+	w.stat.SentCount = 0
 	w.stat.StatusCodes = map[int]uint64{}
-	w.stat.RequestPerSeconds = []uint64{}
+	w.stat.RPS.List = []uint64{}
+	w.stat.RPS.Latest = 0
+	w.stat.RPS.Min = 0
+	w.stat.RPS.Avg = 0
+	w.stat.RPS.Max = 0
 }
 
 func (w *Work) checkPeriodically() {
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
-	var lastCompleted uint64
+	var lastSentCount uint64
 	for {
 		select {
 		case <-w.ctx.Done():
 			return
 		case <-ticker.C:
 			w.mut.Lock()
-			w.stat.RequestPerSeconds = append(w.stat.RequestPerSeconds, w.stat.Completed-lastCompleted)
-			lastCompleted = w.stat.Completed
-			w.stat.Duration = time.Since(w.stat.StartedAt)
+			w.stat.RPS.Latest = w.stat.SentCount - lastSentCount
+			lastSentCount = w.stat.SentCount
+			w.stat.RPS.List = append(w.stat.RPS.List, w.stat.RPS.Latest)
+
+			w.stat.RPS.Min = slices.Min(w.stat.RPS.List)
+			w.stat.RPS.Max = slices.Max(w.stat.RPS.List)
+			w.stat.RPS.Avg = getAvg(w.stat.RPS.List)
+
+			w.stat.PassedDuration = time.Since(w.stat.StartedAt)
 			w.mut.Unlock()
 		}
 	}
+}
+
+func getAvg(list []uint64) float64 {
+	if len(list) == 0 {
+		return 0
+	}
+
+	var (
+		sum   uint64
+		count uint64
+	)
+
+	for i := range list {
+		sum += list[i]
+		count++
+	}
+
+	return float64(sum) / float64(count)
 }

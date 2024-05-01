@@ -12,16 +12,35 @@
   import { goto } from "$app/navigation";
   import Button from "$components/ui/Button.svelte";
   import type { domain } from "$lib/wailsjs/go/models";
-  import { convertSeconds, prettyTime } from "$utils/time";
+  import { prettyTime } from "$utils/time";
+  import RequestStatus from "./parts/RequestStatus.svelte";
+  import DurationStatus from "./parts/DurationStatus.svelte";
+  import RpsStatus from "./parts/RPSStatus.svelte";
+  import TimeStatus from "./parts/TimeStatus.svelte";
+  import StatusCodes from "./parts/StatusCodes.svelte";
+  import StatusTiles from "./parts/StatusTiles.svelte";
 
   let chartElem: HTMLCanvasElement;
   let ch: Chart;
   let stats: any;
-  let currentRequest: domain.Data;
+
+  // request infos
+  let testType = "";
+  let requestMethod = "";
+  let requestURL = "";
+  let numberOfClients = 0;
+  let numberOfRequests = 0;
+  let targetDuration = 0;
+
+  // request statuses
   let isFinished = false;
-  let completedRequest = 0;
+  let sentCount = 0;
   let passedDuration = 0;
   let rpsValues: number[] = [];
+  let latestRPS: number = 0;
+  let minRPS: number = 0;
+  let avgRPS: number = 0;
+  let maxRPS: number = 0;
   let statusCodes: any = {};
   let startedAt = "";
   let endedAt = "";
@@ -61,19 +80,35 @@
     });
     let cr = await GetCurrentRequest();
     if (cr) {
-      currentRequest = cr;
+      setCurrentRequest(cr);
     }
     getStats();
   });
 
+  const setCurrentRequest = (cr: domain.Data) => {
+    testType = cr.options.test_type;
+    requestURL = cr.request.url;
+    requestMethod = cr.request.method;
+    targetDuration =
+      cr.options.duration.hours * 60 * 60 +
+      cr.options.duration.minutes * 60 +
+      cr.options.duration.seconds;
+    numberOfClients = cr.options.number_of_clients;
+    numberOfRequests = cr.options.number_of_requests;
+  };
+
   const updateStats = (st: domain.Stat) => {
-    completedRequest = st.completed;
-    let rps = st.request_per_second;
+    sentCount = st.sent_count;
+    let rps = st.rps.list;
     rpsValues = rps;
     ch.data.datasets[0].data = rpsValues;
     ch.data.labels = rps.map((r) => "");
     ch.update();
-    passedDuration = Math.floor(st.duration / Math.pow(10, 9));
+    latestRPS = st.rps.latest;
+    minRPS = st.rps.min;
+    avgRPS = Number(st.rps.avg.toFixed(2));
+    maxRPS = st.rps.max;
+    passedDuration = Math.floor(st.passed_duration / Math.pow(10, 9));
     startedAt = prettyTime(st.started_at);
     endedAt = prettyTime(st.ended_at);
     statusCodes = st.status_codes;
@@ -97,7 +132,7 @@
     await StartCurrentRequest();
     let cr = await GetCurrentRequest();
     if (cr) {
-      currentRequest = cr;
+      setCurrentRequest(cr);
     }
     rpsValues = [];
     ch.data.labels = [];
@@ -199,105 +234,25 @@
     <div
       class="border border-white/20 rounded px-3 py-2 h-18 w-full flex gap-3"
     >
-      <div
-        class={requestMethods.find(
-          (r) => r.value === currentRequest?.request.method,
-        )?.color}
-      >
-        {currentRequest?.request.method}
+      <div class={requestMethods.find((r) => r.value === requestMethod)?.color}>
+        {requestMethod}
       </div>
-      <div>{currentRequest?.request.url}</div>
+      <div>{requestURL}</div>
     </div>
-    <div class="grid grid-cols-3 gap-5 mt-5">
-      <div class="tile">
-        <h1>Requests</h1>
-        <span>
-          {completedRequest}
-          {#if !currentRequest?.options.duration.is_duration_active}
-            / {currentRequest?.options.number_of_requests *
-              currentRequest?.options.number_of_clients}
-          {/if}
-        </span>
-        {#if !currentRequest?.options.duration.is_duration_active && currentRequest?.options.number_of_clients > 1}
-          <div class="text-sm text-white/50 p-3 pt-0">
-            {currentRequest?.options.number_of_clients} clients X {currentRequest
-              ?.options.number_of_requests} requests
-          </div>
-        {/if}
-      </div>
-      <div class="tile">
-        <h1>Duration</h1>
-        <span>
-          {convertSeconds(passedDuration)}
-          {#if currentRequest?.options.duration.is_duration_active}
-            / {convertSeconds(
-              currentRequest.options.duration.hours * 60 * 60 +
-                currentRequest.options.duration.minutes * 60 +
-                currentRequest.options.duration.seconds,
-            )}
-          {/if}
-        </span>
-        {#if currentRequest?.options.duration.is_duration_active && currentRequest?.options.number_of_clients > 1}
-          <div class="text-sm text-white/50 p-3 pt-0">
-            {currentRequest?.options.number_of_clients} clients X {convertSeconds(
-              currentRequest.options.duration.hours * 60 * 60 +
-                currentRequest.options.duration.minutes * 60 +
-                currentRequest.options.duration.seconds,
-            )}
-          </div>
-        {/if}
-      </div>
-      <div class="tile">
-        <h1>Requests per second</h1>
-        <span>
-          {rpsValues.length > 0 ? rpsValues[rpsValues.length - 1] : "0"} rps
-        </span>
-      </div>
-      <div class="tile">
-        <h1>Time</h1>
-        <div class="px-3 mt-3 text-white/50">Started at:</div>
-        <span>
-          {startedAt}
-        </span>
-        <div class="px-3 mt-3 text-white/50">Ended at:</div>
-        <span class="mb-5">
-          {endedAt != "" ? endedAt : "not ended yet"}
-        </span>
-      </div>
-      <div class="tile">
-        <h1>Status Codes</h1>
-        {#if statusCodes}
-          <div class="flex flex-col gap-2 px-3">
-            {#each Object.keys(statusCodes) as sc}
-              <div class="flex justify-between items-center gap-2">
-                <div>
-                  {sc}
-                </div>
-                <div
-                  class="flex-1 border-b border-dashed border-white/20"
-                ></div>
-                <div>
-                  {statusCodes[sc]}x
-                </div>
-              </div>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </div>
+    <StatusTiles
+      {testType}
+      {sentCount}
+      {numberOfRequests}
+      {numberOfClients}
+      {passedDuration}
+      {targetDuration}
+      {latestRPS}
+      {minRPS}
+      {avgRPS}
+      {maxRPS}
+      {startedAt}
+      {endedAt}
+      {statusCodes}
+    />
   </div>
 </div>
-
-<style lang="postcss">
-  .tile {
-    @apply border border-white/20 rounded bg-accent-bg;
-  }
-
-  .tile h1 {
-    @apply text-xl opacity-50 p-3 pb-0 font-extralight;
-  }
-
-  .tile span {
-    @apply text-2xl font-light px-3 block;
-  }
-</style>

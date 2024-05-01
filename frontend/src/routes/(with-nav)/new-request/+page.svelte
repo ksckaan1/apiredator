@@ -22,16 +22,18 @@
   import { domain } from "$lib/wailsjs/go/models";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
+  import SegmentedSelect from "$components/ui/SegmentedSelect.svelte";
 
   let urlValue: string = "https://jsonplaceholder.typicode.com/todos/1";
   let activeRequestMethod: string = "GET";
 
   let activeTab: RequestTab = "options";
 
+  let activeTestType: string = "count";
+
   let numberOfRequestsValue: number = 1;
   let numberOfClientsValue: number = 1;
 
-  let isDurationActive: boolean = false;
   let durationHoursValue: number = 0;
   let durationMinutesValue: number = 0;
   let durationSecondsValue: number = 0;
@@ -86,6 +88,17 @@
     },
   ];
 
+  let testTypes = [
+    {
+      title: "Count",
+      value: "count",
+    },
+    {
+      title: "Duration",
+      value: "duration",
+    },
+  ];
+
   let headerRows: KeyValueData[] = [];
 
   onMount(async () => {
@@ -97,7 +110,7 @@
       activeRequestMethod = cr.request.method;
       numberOfRequestsValue = cr.options.number_of_requests;
       numberOfClientsValue = cr.options.number_of_clients;
-      isDurationActive = cr.options.duration.is_duration_active;
+      activeTestType = cr.options.test_type;
       durationHoursValue = cr.options.duration.hours;
       durationMinutesValue = cr.options.duration.minutes;
       durationSecondsValue = cr.options.duration.seconds;
@@ -129,8 +142,8 @@
       options: {
         number_of_requests: Number(numberOfRequestsValue),
         number_of_clients: Number(numberOfClientsValue),
+        test_type: activeTestType,
         duration: {
-          is_duration_active: isDurationActive,
           hours: Number(durationHoursValue),
           minutes: Number(durationMinutesValue),
           seconds: Number(durationSecondsValue),
@@ -159,17 +172,52 @@
   <hr class="my-3" />
   <Tabs bind:value={activeTab} />
   {#if activeTab === "options"}
-    <div class="grid w-full grid-cols-2 my-5 gap-x-5">
-      <Section
-        title="Number of Requests"
-        subtitle="How many requests per client?"
-      >
-        <NumberInput
-          bind:value={numberOfRequestsValue}
-          min={1}
-          max={100000000000}
-        />
+    <div class="w-full my-5">
+      <Section title="Test type" subtitle="Which test type you are using?">
+        <div class="w-min">
+          <SegmentedSelect bind:activeItem={activeTestType} items={testTypes} />
+        </div>
       </Section>
+    </div>
+    <div class="grid w-full grid-cols-2 mb-5 gap-x-5">
+      {#if activeTestType === "count"}
+        <Section
+          title="Number of Requests"
+          subtitle="How many requests per client?"
+        >
+          <NumberInput
+            bind:value={numberOfRequestsValue}
+            min={1}
+            max={100000000000}
+          />
+        </Section>
+      {:else if activeTestType === "duration"}
+        <Section
+          title="Duration"
+          subtitle="How long will requests be sent in total?"
+        >
+          <div class="flex gap-x-3">
+            <NumberInput
+              label="Hours"
+              bind:value={durationHoursValue}
+              min={0}
+              max={100000000000}
+            />
+            <NumberInput
+              label="Minutes"
+              bind:value={durationMinutesValue}
+              min={0}
+              max={100000000000}
+            />
+            <NumberInput
+              label="Seconds"
+              bind:value={durationSecondsValue}
+              min={0}
+              max={100000000000}
+            />
+          </div>
+        </Section>
+      {/if}
       <Section
         title="Number of Clients"
         subtitle="How many clients will make requests at the same time?"
@@ -179,34 +227,6 @@
           min={1}
           max={100000000000}
         />
-      </Section>
-    </div>
-    <div class="grid w-full grid-cols-2 mb-5 gap-x-5">
-      <Section
-        bind:isActive={isDurationActive}
-        title="Duration"
-        subtitle="Should requests be made over a period of time?"
-      >
-        <div class="flex gap-x-3">
-          <NumberInput
-            label="Hours"
-            bind:value={durationHoursValue}
-            min={0}
-            max={100000000000}
-          />
-          <NumberInput
-            label="Minutes"
-            bind:value={durationMinutesValue}
-            min={0}
-            max={100000000000}
-          />
-          <NumberInput
-            label="Seconds"
-            bind:value={durationSecondsValue}
-            min={0}
-            max={100000000000}
-          />
-        </div>
       </Section>
     </div>
   {:else if activeTab === "header"}

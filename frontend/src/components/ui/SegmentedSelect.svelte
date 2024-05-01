@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { MouseEventHandler } from "svelte/elements";
 
   export let items: { title: string; value: string }[] = [
     {
@@ -61,7 +60,7 @@
   {#each items as item}
     <button
       class:active={item.value === activeItem}
-      class="flex-1 z-20"
+      class="flex-1 z-20 px-4"
       on:click={() => (activeItem = item.value)}
     >
       {item.title}

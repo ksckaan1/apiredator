@@ -77,7 +77,6 @@ export namespace domain {
 		}
 	}
 	export class Duration {
-	    is_duration_active: boolean;
 	    hours: number;
 	    minutes: number;
 	    seconds: number;
@@ -88,13 +87,13 @@ export namespace domain {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.is_duration_active = source["is_duration_active"];
 	        this.hours = source["hours"];
 	        this.minutes = source["minutes"];
 	        this.seconds = source["seconds"];
 	    }
 	}
 	export class Options {
+	    test_type: string;
 	    duration: Duration;
 	    number_of_clients: number;
 	    number_of_requests: number;
@@ -105,6 +104,7 @@ export namespace domain {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.test_type = source["test_type"];
 	        this.duration = this.convertValues(source["duration"], Duration);
 	        this.number_of_clients = source["number_of_clients"];
 	        this.number_of_requests = source["number_of_requests"];
@@ -200,16 +200,36 @@ export namespace domain {
 	
 	
 	
+	export class RPS {
+	    list: number[];
+	    latest: number;
+	    min: number;
+	    avg: number;
+	    max: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new RPS(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.list = source["list"];
+	        this.latest = source["latest"];
+	        this.min = source["min"];
+	        this.avg = source["avg"];
+	        this.max = source["max"];
+	    }
+	}
 	
 	export class Stat {
-	    completed: number;
-	    request_per_second: number[];
+	    sent_count: number;
+	    rps: RPS;
 	    status_codes: {[key: number]: number};
 	    // Go type: time
 	    started_at: any;
 	    // Go type: time
 	    ended_at: any;
-	    duration: number;
+	    passed_duration: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Stat(source);
@@ -217,12 +237,12 @@ export namespace domain {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.completed = source["completed"];
-	        this.request_per_second = source["request_per_second"];
+	        this.sent_count = source["sent_count"];
+	        this.rps = this.convertValues(source["rps"], RPS);
 	        this.status_codes = source["status_codes"];
 	        this.started_at = this.convertValues(source["started_at"], null);
 	        this.ended_at = this.convertValues(source["ended_at"], null);
-	        this.duration = source["duration"];
+	        this.passed_duration = source["passed_duration"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

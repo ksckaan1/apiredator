@@ -34,9 +34,9 @@ func (a *App) Init(ctx context.Context) error {
 
 func (a *App) Run(ctx context.Context) error {
 	err := wails.Run(&options.App{
-		Title:  "Bomber",
+		Title:  "APIredator",
 		Width:  1024,
-		Height: 768,
+		Height: 800,
 		AssetServer: &assetserver.Options{
 			Assets: a.assets,
 		},
@@ -57,12 +57,12 @@ func (a *App) Run(ctx context.Context) error {
 				HideToolbarSeparator:       true,
 			},
 			About: &mac.AboutInfo{
-				Title:   "Bomber",
-				Message: "API penetration tool",
+				Title:   "APIredator",
+				Message: "API load testing tool",
 			},
 		},
 		Debug: options.Debug{
-			// OpenInspectorOnStartup: true,
+			OpenInspectorOnStartup: true,
 		},
 	})
 	if err != nil {

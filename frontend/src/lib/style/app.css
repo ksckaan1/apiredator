@@ -14,3 +14,11 @@ body {
 hr {
   @apply border-t-white/10;
 }
+
+.tile {
+  @apply border border-white/20 rounded bg-accent-bg p-5;
+}
+
+.tile h1 {
+  @apply text-2xl opacity-50 font-extralight;
+}

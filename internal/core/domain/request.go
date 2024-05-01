@@ -36,14 +36,21 @@ type FormData struct {
 }
 
 type Duration struct {
-	IsDurationActive bool  `json:"is_duration_active"`
-	Hours            int64 `json:"hours"`
-	Minutes          int64 `json:"minutes"`
-	Seconds          int64 `json:"seconds"`
+	Hours   int64 `json:"hours"`
+	Minutes int64 `json:"minutes"`
+	Seconds int64 `json:"seconds"`
 }
 
 type Options struct {
+	TestType         TestType `json:"test_type"`
 	Duration         Duration `json:"duration"`
 	NumberOfClients  uint64   `json:"number_of_clients"`
 	NumberOfRequests uint64   `json:"number_of_requests"`
 }
+
+type TestType string
+
+const (
+	TTCount    TestType = "count"
+	TTDuration TestType = "duration"
+)
