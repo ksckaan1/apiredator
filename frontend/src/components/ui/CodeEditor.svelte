@@ -34,18 +34,7 @@
 
     monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
 
-    monaco.editor.defineTheme(
-      "ayu-dark",
-      ayuTheme,
-      // {
-      //   base: "vs-dark",
-      //   inherit: true,
-      //   rules: [],
-      //   colors: {
-      //     "editor.background": "#0D0F18",
-      //   },
-      // }
-    );
+    monaco.editor.defineTheme("ayu-dark", ayuTheme);
 
     editor = monaco.editor.create(editorElement, {
       automaticLayout: true,
@@ -66,4 +55,7 @@
   });
 </script>
 
-<div class="h-full" bind:this={editorElement} />
+<div
+  class="h-96 border border-white/20 rounded overflow-hidden"
+  bind:this={editorElement}
+/>
