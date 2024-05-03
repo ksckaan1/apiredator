@@ -20,7 +20,7 @@
   export let statusCodes: { [key: number]: number } = {};
 </script>
 
-<div class="grid grid-cols-3 gap-5 mt-5">
+<div class="statuses mt-5">
   <RequestStatus {testType} {sentCount} {numberOfClients} {numberOfRequests} />
   <DurationStatus
     {testType}
@@ -32,3 +32,10 @@
   <TimeStatus {startedAt} {endedAt} />
   <StatusCodes {statusCodes} />
 </div>
+
+<style class="postcss">
+  .statuses {
+    @apply grid gap-5 w-full;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+</style>

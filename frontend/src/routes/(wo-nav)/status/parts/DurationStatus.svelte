@@ -8,17 +8,17 @@
 
 <div class="tile">
   <h1>Duration</h1>
-  <div class="flex gap-x-3 mt-3">
-    <div class="flex-1">
-      <h2 class="text-lg font-extralight text-white/30">Passed</h2>
-      <span class="text-xl">
+  <div class="grid gap-3 mt-3">
+    <div class="bl">
+      <h2>Passed</h2>
+      <span>
         {convertSeconds(passedDuration)}
       </span>
     </div>
     {#if testType === "duration"}
-      <div class="flex-1">
-        <h2 class="text-lg font-extralight text-white/30 px-3">Target</h2>
-        <span class="text-xl px-3">
+      <div class="bl">
+        <h2>Target</h2>
+        <span>
           {convertSeconds(targetDuration)}
         </span>
       </div>

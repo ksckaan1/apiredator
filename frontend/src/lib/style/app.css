@@ -22,3 +22,11 @@ hr {
 .tile h1 {
   @apply text-2xl opacity-50 font-extralight;
 }
+
+.tile .bl {
+  @apply border-l-4 border-white/10 pl-2;
+}
+
+.tile h2 {
+  @apply text-lg font-extralight text-white/30;
+}

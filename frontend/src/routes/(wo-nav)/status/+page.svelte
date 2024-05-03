@@ -229,7 +229,7 @@
   </div>
 
   <div
-    class="w-full p-5 mx-auto max-w-7xl flex-1 overflow-y-scroll flex flex-col"
+    class="w-full p-5 mx-auto max-w-7xl flex-1 overflow-y-auto flex flex-col"
   >
     <div
       class="border border-white/20 rounded px-3 py-2 h-18 w-full flex gap-3"

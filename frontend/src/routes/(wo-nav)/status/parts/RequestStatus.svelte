@@ -7,17 +7,17 @@
 
 <div class="tile">
   <h1>Requests</h1>
-  <div class="flex gap-x-3 mt-3">
-    <div class="flex-1">
-      <h2 class="text-lg font-extralight text-white/30">Sent</h2>
-      <span class="text-xl">
+  <div class="grid gap-3 mt-3">
+    <div class="bl">
+      <h2>Sent</h2>
+      <span>
         {sentCount}
       </span>
     </div>
     {#if testType === "count"}
-      <div class="flex-1">
-        <h2 class="text-lg font-extralight text-white/30 px-3">Target</h2>
-        <span class="text-xl px-3">
+      <div class="bl">
+        <h2>Target</h2>
+        <span>
           {numberOfRequests * numberOfClients}
         </span>
       </div>
