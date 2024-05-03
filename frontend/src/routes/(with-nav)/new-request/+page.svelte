@@ -1,12 +1,11 @@
 <script lang="ts">
+  import { slide } from "svelte/transition";
   import KeyValue from "$components/ui/KeyValue.svelte";
-  import NumberInput from "$components/ui/NumberInput.svelte";
-  import Section from "$components/ui/Section.svelte";
   import Tabs from "$components/ui/Tabs.svelte";
   import Button from "$components/ui/Button.svelte";
   import DropdownSelect from "$components/ui/DropdownSelect.svelte";
   import UrlInput from "$components/ui/URLInput.svelte";
-  import RequestBody from "$components/parts/RequestBody.svelte";
+  import RequestBody from "./parts/RequestBody.svelte";
   import type {
     BodyType,
     KeyValueData,
@@ -22,7 +21,7 @@
   import { domain } from "$lib/wailsjs/go/models";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
-  import SegmentedSelect from "$components/ui/SegmentedSelect.svelte";
+  import Options from "./parts/Options.svelte";
 
   let urlValue: string = "https://jsonplaceholder.typicode.com/todos/1";
   let activeRequestMethod: string = "GET";
@@ -88,40 +87,31 @@
     },
   ];
 
-  let testTypes = [
-    {
-      title: "Count",
-      value: "count",
-    },
-    {
-      title: "Duration",
-      value: "duration",
-    },
-  ];
-
   let headerRows: KeyValueData[] = [];
 
   onMount(async () => {
-    // try {
-    let cr = await GetCurrentRequest();
+    try {
+      let cr = await GetCurrentRequest();
 
-    if (cr) {
-      urlValue = cr.request.url;
-      activeRequestMethod = cr.request.method;
-      numberOfRequestsValue = cr.options.number_of_requests;
-      numberOfClientsValue = cr.options.number_of_clients;
-      activeTestType = cr.options.test_type;
-      durationHoursValue = cr.options.duration.hours;
-      durationMinutesValue = cr.options.duration.minutes;
-      durationSecondsValue = cr.options.duration.seconds;
-      activeBodyType = cr.request.body.type as BodyType;
-      activeLanguage = cr.request.body.language as Language;
-      rawBodyValue = cr.request.body.raw_value;
-      binaryValue = cr.request.body.binary;
-      formdataValue = cr.request.body.formdata as FormData[];
-      xwwwformdataValue = cr.request.body.xwwwformdata;
+      if (cr) {
+        urlValue = cr.request.url;
+        activeRequestMethod = cr.request.method;
+        numberOfRequestsValue = cr.options.number_of_requests;
+        numberOfClientsValue = cr.options.number_of_clients;
+        activeTestType = cr.options.test_type;
+        durationHoursValue = cr.options.duration.hours;
+        durationMinutesValue = cr.options.duration.minutes;
+        durationSecondsValue = cr.options.duration.seconds;
+        activeBodyType = cr.request.body.type as BodyType;
+        activeLanguage = cr.request.body.language as Language;
+        rawBodyValue = cr.request.body.raw_value;
+        binaryValue = cr.request.body.binary;
+        formdataValue = cr.request.body.formdata as FormData[];
+        xwwwformdataValue = cr.request.body.xwwwformdata;
+      }
+    } catch (err) {
+      console.error(err);
     }
-    // }
   });
 
   const onSendBtnClicked = async () => {
@@ -172,73 +162,30 @@
   <hr class="my-3" />
   <Tabs bind:value={activeTab} />
   {#if activeTab === "options"}
-    <div class="w-full my-5">
-      <Section title="Test type" subtitle="Which test type you are using?">
-        <div class="w-min">
-          <SegmentedSelect bind:activeItem={activeTestType} items={testTypes} />
-        </div>
-      </Section>
-    </div>
-    <div class="grid w-full grid-cols-2 mb-5 gap-x-5">
-      {#if activeTestType === "count"}
-        <Section
-          title="Number of Requests"
-          subtitle="How many requests per client?"
-        >
-          <NumberInput
-            bind:value={numberOfRequestsValue}
-            min={1}
-            max={100000000000}
-          />
-        </Section>
-      {:else if activeTestType === "duration"}
-        <Section
-          title="Duration"
-          subtitle="How long will requests be sent in total?"
-        >
-          <div class="flex gap-x-3">
-            <NumberInput
-              label="Hours"
-              bind:value={durationHoursValue}
-              min={0}
-              max={100000000000}
-            />
-            <NumberInput
-              label="Minutes"
-              bind:value={durationMinutesValue}
-              min={0}
-              max={100000000000}
-            />
-            <NumberInput
-              label="Seconds"
-              bind:value={durationSecondsValue}
-              min={0}
-              max={100000000000}
-            />
-          </div>
-        </Section>
-      {/if}
-      <Section
-        title="Number of Clients"
-        subtitle="How many clients will make requests at the same time?"
-      >
-        <NumberInput
-          bind:value={numberOfClientsValue}
-          min={1}
-          max={100000000000}
-        />
-      </Section>
+    <div transition:slide>
+      <Options
+        bind:activeTestType
+        bind:durationHoursValue
+        bind:durationMinutesValue
+        bind:durationSecondsValue
+        bind:numberOfClientsValue
+        bind:numberOfRequestsValue
+      />
     </div>
   {:else if activeTab === "header"}
-    <KeyValue bind:rows={headerRows} />
+    <div transition:slide>
+      <KeyValue bind:rows={headerRows} />
+    </div>
   {:else if activeTab === "body"}
-    <RequestBody
-      bind:activeBodyType
-      bind:activeLanguage
-      bind:binaryValue
-      bind:formdataValue
-      bind:rawBodyValue
-      bind:xwwwformdataValue
-    />
+    <div transition:slide>
+      <RequestBody
+        bind:activeBodyType
+        bind:activeLanguage
+        bind:binaryValue
+        bind:formdataValue
+        bind:rawBodyValue
+        bind:xwwwformdataValue
+      />
+    </div>
   {/if}
 </div>
