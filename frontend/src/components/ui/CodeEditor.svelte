@@ -56,6 +56,6 @@
 </script>
 
 <div
-  class="h-96 border border-white/20 rounded overflow-hidden"
+  class="h-96 border border-white/20 rounded overflow-hidden selectable"
   bind:this={editorElement}
 />

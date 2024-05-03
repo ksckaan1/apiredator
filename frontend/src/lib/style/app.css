@@ -7,9 +7,9 @@ body {
   @apply bg-default-bg text-zinc-100;
 }
 
-/* :not(input, textarea) {
+:not(input, textarea, .selectable, .selectable *) {
   @apply select-none;
-} */
+}
 
 hr {
   @apply border-t-white/10;
