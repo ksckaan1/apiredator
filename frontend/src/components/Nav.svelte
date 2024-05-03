@@ -43,7 +43,7 @@
 </script>
 
 <nav
-  class="flex-shrink-0 relative w-16 h-[calc(100vh-2.5rem)] border-r bg-default-bg border-white/20"
+  class="relative w-16 h-[calc(100vh-2.5rem)] border-r bg-default-bg border-white/20"
 >
   {#if showIndicator}
     <div
