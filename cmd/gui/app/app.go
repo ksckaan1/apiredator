@@ -36,14 +36,14 @@ func (a *App) Run(ctx context.Context) error {
 	err := wails.Run(&options.App{
 		Title:  "APIredator",
 		Width:  1024,
-		Height: 800,
+		Height: 900,
 		AssetServer: &assetserver.Options{
 			Assets: a.assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        a.appService.Startup,
-		MinWidth:         400,
-		MinHeight:        400,
+		MinWidth:         800,
+		MinHeight:        800,
 		Bind: []any{
 			a.appService,
 		},
