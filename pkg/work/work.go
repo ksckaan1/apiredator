@@ -67,7 +67,6 @@ func (w *Work) Start(ctx context.Context) error {
 
 func (w *Work) Stop() {
 	w.ctxCancel()
-	w.logger.Info("work stopped")
 }
 
 func (w *Work) IsActive() bool {
@@ -91,7 +90,6 @@ func (w *Work) run() error {
 			w.isActive = false
 			w.stat.PassedDuration = w.stat.EndedAt.Sub(w.stat.StartedAt)
 			w.ctxCancel()
-			w.logger.Info("work finished")
 		}()
 
 		go w.checkPeriodically()

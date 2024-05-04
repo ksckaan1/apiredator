@@ -14,14 +14,12 @@ import (
 
 var _ port.AppService = (*AppService)(nil)
 
-// App struct
 type AppService struct {
 	ctx         context.Context
 	currentWork port.Work
 	logger      port.Logger
 }
 
-// NewApp creates a new App application struct
 func NewAppService(lg port.Logger) *AppService {
 	return &AppService{
 		logger: lg,
@@ -34,25 +32,38 @@ func (a *AppService) Startup(ctx context.Context) {
 
 func (a *AppService) SetCurrentRequest(data domain.Data) error {
 	a.currentWork = work.New(a.logger, &data)
+	a.logger.Info("set current request",
+		"data", data,
+	)
 	return nil
 }
 
 func (a *AppService) GetCurrentRequest() (*domain.Data, error) {
 	if a.currentWork == nil {
+		a.logger.Error("current work not found")
 		return nil, nil
 	}
-	return a.currentWork.GetDetails(), nil
+	data := a.currentWork.GetDetails()
+	a.logger.Info("get current work",
+		"data", data,
+	)
+	return data, nil
 }
 
 func (a *AppService) StartCurrentRequest() error {
 	if a.currentWork == nil {
+		a.logger.Error("current request not found")
 		return errors.New("current work is not set")
 	}
 
 	err := a.currentWork.Start(context.Background())
 	if err != nil {
+		a.logger.Error("current request can not started",
+			"error", err,
+		)
 		return fmt.Errorf("start work: %w", err)
 	}
+	a.logger.Info("current request started")
 
 	return nil
 }
@@ -91,10 +102,17 @@ func (a *AppService) GetStats() (*domain.Stat, error) {
 }
 
 func (a *AppService) StopWork() error {
+	if a.currentWork == nil {
+		return errors.New("current work not found")
+	}
+
 	if !a.currentWork.IsActive() {
 		return errors.New("already stopped")
 	}
+
 	a.currentWork.Stop()
+	a.logger.Info("current work stopped")
+
 	return nil
 }
 
@@ -104,8 +122,12 @@ func (a *AppService) IsWorkActive() bool {
 
 func (a *AppService) WaitWork() error {
 	if a.currentWork == nil {
-		return errors.New("no work started")
+		a.logger.Error("current work not found")
+		return errors.New("current work not found")
 	}
+
+	a.logger.Info("waiting for current work")
 	a.currentWork.Wait()
+	a.logger.Info("finished current work")
 	return nil
 }
