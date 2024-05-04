@@ -14,7 +14,7 @@
       </span>
     </div>
     {#if endedAt !== ""}
-      <div in:slide class="bl">
+      <div transition:slide class="bl">
         <h2>Ended at</h2>
         <span>
           {endedAt}

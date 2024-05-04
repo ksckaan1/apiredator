@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade, fly } from "svelte/transition";
   import DurationStatus from "./DurationStatus.svelte";
   import RequestStatus from "./RequestStatus.svelte";
   import TimeStatus from "./TimeStatus.svelte";
@@ -21,16 +22,31 @@
 </script>
 
 <div class="statuses mt-5">
-  <RequestStatus {testType} {sentCount} {numberOfClients} {numberOfRequests} />
-  <DurationStatus
-    {testType}
-    {passedDuration}
-    {numberOfClients}
-    {targetDuration}
-  />
-  <RpsStatus {latestRPS} {minRPS} {avgRPS} {maxRPS} />
-  <TimeStatus {startedAt} {endedAt} />
-  <StatusCodes {statusCodes} />
+  <div in:fly={{ delay: 600, duration: 200, y: 50 }}>
+    <RequestStatus
+      {testType}
+      {sentCount}
+      {numberOfClients}
+      {numberOfRequests}
+    />
+  </div>
+  <div in:fly={{ delay: 750, duration: 200, y: 50 }}>
+    <DurationStatus
+      {testType}
+      {passedDuration}
+      {numberOfClients}
+      {targetDuration}
+    />
+  </div>
+  <div in:fly={{ delay: 900, duration: 200, y: 50 }}>
+    <RpsStatus {latestRPS} {minRPS} {avgRPS} {maxRPS} />
+  </div>
+  <div in:fly={{ delay: 1050, duration: 200, y: 50 }}>
+    <TimeStatus {startedAt} {endedAt} />
+  </div>
+  <div in:fly={{ delay: 1200, duration: 200, y: 50 }}>
+    <StatusCodes {statusCodes} />
+  </div>
 </div>
 
 <style class="postcss">

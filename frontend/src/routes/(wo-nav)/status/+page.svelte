@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade, fly } from "svelte/transition";
   import Chart from "chart.js/auto";
   import {
     GetCurrentRequest,
@@ -13,12 +14,8 @@
   import Button from "$components/ui/Button.svelte";
   import type { domain } from "$lib/wailsjs/go/models";
   import { prettyTime } from "$utils/time";
-  import RequestStatus from "./parts/RequestStatus.svelte";
-  import DurationStatus from "./parts/DurationStatus.svelte";
-  import RpsStatus from "./parts/RPSStatus.svelte";
-  import TimeStatus from "./parts/TimeStatus.svelte";
-  import StatusCodes from "./parts/StatusCodes.svelte";
   import StatusTiles from "./parts/StatusTiles.svelte";
+  import UrlInfo from "./parts/URLInfo.svelte";
 
   let chartElem: HTMLCanvasElement;
   let ch: Chart;
@@ -128,7 +125,24 @@
     });
   };
 
+  const resetStatuses = () => {
+    sentCount = 0;
+    passedDuration = 0;
+    rpsValues = [];
+    latestRPS = 0;
+    minRPS = 0;
+    avgRPS = 0;
+    maxRPS = 0;
+    statusCodes = {};
+    startedAt = "";
+    endedAt = "";
+    ch.data.datasets[0].data = [];
+    ch.data.labels = [];
+    ch.update();
+  };
+
   const onRetryButtonClicked = async () => {
+    resetStatuses();
     await StartCurrentRequest();
     let cr = await GetCurrentRequest();
     if (cr) {
@@ -151,55 +165,19 @@
       replaceState: true,
     });
   };
-
-  let requestMethods = [
-    {
-      value: "GET",
-      title: "GET",
-      color: "text-green-400",
-    },
-    {
-      value: "POST",
-      title: "POST",
-      color: "text-amber-400",
-    },
-    {
-      value: "PUT",
-      title: "PUT",
-      color: "text-sky-400",
-    },
-    {
-      value: "PATCH",
-      title: "PATCH",
-      color: "text-purple-400",
-    },
-    {
-      value: "DELETE",
-      title: "DELETE",
-      color: "text-red-400",
-    },
-    {
-      value: "HEAD",
-      title: "HEAD",
-      color: "text-pink-400",
-    },
-    {
-      value: "TRACE",
-      title: "TRACE",
-      color: "text-teal-400",
-    },
-    {
-      value: "OPTIONS",
-      title: "OPTIONS",
-      color: "text-emerald-400",
-    },
-  ];
 </script>
 
-<div class="flex flex-col h-screen">
+<div
+  in:fade={{ delay: 200, duration: 200 }}
+  out:fade={{ duration: 200 }}
+  class="flex flex-col h-screen"
+>
   <div class="bg-accent-bg" style="--wails-draggable:drag">
     <div class="w-full p-5 pt-10 mx-auto max-w-7xl flex-1 flex flex-col">
-      <div class="flex items-center justify-between">
+      <div
+        in:fly={{ delay: 200, duration: 300, y: -50 }}
+        class="flex items-center justify-between"
+      >
         <button on:click={onBackButtonClicked}>&larr; back to request</button>
         <div class="flex items-center gap-3">
           {#if !isFinished}
@@ -222,22 +200,20 @@
           <Button on:click={onNewRequestButtonClicked}>New Request</Button>
         </div>
       </div>
-      <div class="bg-default-bg w-full rounded-lg mt-5 pl-2 chartWrapper">
+      <div
+        in:fly={{ delay: 400, duration: 200, y: -50 }}
+        class="bg-default-bg w-full rounded-lg mt-5 pl-2 chartWrapper"
+      >
         <canvas class="w-full" bind:this={chartElem}></canvas>
       </div>
     </div>
   </div>
 
   <div
-    class="w-full p-5 mx-auto max-w-7xl flex-1 overflow-y-auto flex flex-col"
+    class="w-full p-5 mx-auto max-w-7xl flex-1 overflow-y-auto flex flex-col hide-scrollbar"
   >
-    <div
-      class="border border-white/20 rounded px-3 py-2 h-18 w-full flex gap-3"
-    >
-      <div class={requestMethods.find((r) => r.value === requestMethod)?.color}>
-        {requestMethod}
-      </div>
-      <div>{requestURL}</div>
+    <div in:fly={{ duration: 200, delay: 600, y: -50 }}>
+      <UrlInfo {requestMethod} {requestURL} />
     </div>
     <StatusTiles
       {testType}
@@ -256,3 +232,10 @@
     />
   </div>
 </div>
+
+<style>
+  .hide-scrollbar::-webkit-scrollbar {
+    width: 0px;
+    display: none;
+  }
+</style>

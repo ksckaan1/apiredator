@@ -4,7 +4,7 @@
 
 
 body {
-  @apply bg-default-bg text-zinc-100;
+  @apply bg-default-bg text-zinc-100 overflow-hidden;
 }
 
 :not(input, textarea, .selectable, .selectable *) {
@@ -16,7 +16,7 @@ hr {
 }
 
 .tile {
-  @apply border border-white/20 rounded bg-accent-bg p-5;
+  @apply border border-white/20 rounded bg-accent-bg p-5 h-full;
 }
 
 .tile h1 {
