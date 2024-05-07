@@ -10,8 +10,8 @@
   export let sentCount = 0;
   export let numberOfClients = 0;
   export let numberOfRequests = 0;
-  export let passedDuration = 0;
-  export let targetDuration = 0;
+  export let passedDuration = "0s";
+  export let testDuration = "0s";
   export let latestRPS = 0;
   export let minRPS = 0;
   export let avgRPS = 0;
@@ -35,7 +35,7 @@
       {testType}
       {passedDuration}
       {numberOfClients}
-      {targetDuration}
+      {testDuration}
     />
   </div>
   <div in:fly={{ delay: 900, duration: 200, y: 50 }}>

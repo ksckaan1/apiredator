@@ -76,25 +76,10 @@ export namespace domain {
 		    return a;
 		}
 	}
-	export class Duration {
-	    hours: number;
-	    minutes: number;
-	    seconds: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new Duration(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.hours = source["hours"];
-	        this.minutes = source["minutes"];
-	        this.seconds = source["seconds"];
-	    }
-	}
 	export class Options {
 	    test_type: string;
-	    duration: Duration;
+	    test_duration: string;
+	    request_timeout: string;
 	    number_of_clients: number;
 	    number_of_requests: number;
 	
@@ -105,28 +90,11 @@ export namespace domain {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.test_type = source["test_type"];
-	        this.duration = this.convertValues(source["duration"], Duration);
+	        this.test_duration = source["test_duration"];
+	        this.request_timeout = source["request_timeout"];
 	        this.number_of_clients = source["number_of_clients"];
 	        this.number_of_requests = source["number_of_requests"];
 	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
 	}
 	export class Request {
 	    method: string;
@@ -199,7 +167,6 @@ export namespace domain {
 	
 	
 	
-	
 	export class RPS {
 	    list: number[];
 	    latest: number;
@@ -229,7 +196,7 @@ export namespace domain {
 	    started_at: any;
 	    // Go type: time
 	    ended_at: any;
-	    passed_duration: number;
+	    passed_duration: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Stat(source);

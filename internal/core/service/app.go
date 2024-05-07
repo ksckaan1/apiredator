@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -31,7 +32,17 @@ func (a *AppService) Startup(ctx context.Context) {
 }
 
 func (a *AppService) SetCurrentRequest(data domain.Data) error {
-	a.currentWork = work.New(a.logger, &data)
+	var reqTimeout time.Duration
+
+	if data.Options.RequestTimeout != "" {
+		v, err := time.ParseDuration(data.Options.RequestTimeout)
+		if err != nil {
+			return fmt.Errorf("time: parse duration: %w", err)
+		}
+		reqTimeout = v
+	}
+
+	a.currentWork = work.New(a.logger, &data, reqTimeout)
 	a.logger.Info("set current request",
 		"data", data,
 	)

@@ -35,15 +35,10 @@ type FormData struct {
 	RowType   string   `json:"row_type"`
 }
 
-type Duration struct {
-	Hours   int64 `json:"hours"`
-	Minutes int64 `json:"minutes"`
-	Seconds int64 `json:"seconds"`
-}
-
 type Options struct {
 	TestType         TestType `json:"test_type"`
-	Duration         Duration `json:"duration"`
+	TestDuration     string   `json:"test_duration"`
+	RequestTimeout   string   `json:"request_timeout"`
 	NumberOfClients  uint64   `json:"number_of_clients"`
 	NumberOfRequests uint64   `json:"number_of_requests"`
 }

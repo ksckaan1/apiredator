@@ -27,12 +27,12 @@
   let requestURL = "";
   let numberOfClients = 0;
   let numberOfRequests = 0;
-  let targetDuration = 0;
+  let testDuration = "";
 
   // request statuses
   let isFinished = false;
   let sentCount = 0;
-  let passedDuration = 0;
+  let passedDuration = "0s";
   let rpsValues: number[] = [];
   let latestRPS: number = 0;
   let minRPS: number = 0;
@@ -86,10 +86,7 @@
     testType = cr.options.test_type;
     requestURL = cr.request.url;
     requestMethod = cr.request.method;
-    targetDuration =
-      cr.options.duration.hours * 60 * 60 +
-      cr.options.duration.minutes * 60 +
-      cr.options.duration.seconds;
+    testDuration = cr.options.test_duration;
     numberOfClients = cr.options.number_of_clients;
     numberOfRequests = cr.options.number_of_requests;
   };
@@ -105,7 +102,7 @@
     minRPS = st.rps.min;
     avgRPS = Number(st.rps.avg.toFixed(2));
     maxRPS = st.rps.max;
-    passedDuration = Math.floor(st.passed_duration / Math.pow(10, 9));
+    passedDuration = st.passed_duration;
     startedAt = prettyTime(st.started_at);
     endedAt = prettyTime(st.ended_at);
     statusCodes = st.status_codes;
@@ -127,7 +124,7 @@
 
   const resetStatuses = () => {
     sentCount = 0;
-    passedDuration = 0;
+    passedDuration = "0s";
     rpsValues = [];
     latestRPS = 0;
     minRPS = 0;
@@ -178,7 +175,12 @@
         in:fly={{ delay: 200, duration: 300, y: -50 }}
         class="flex items-center justify-between"
       >
-        <button on:click={onBackButtonClicked}>&larr; back to request</button>
+        <button
+          on:click={onBackButtonClicked}
+          class="bg-default-bg rounded px-5 py-2 border border-white/20"
+        >
+          &larr; Back to request
+        </button>
         <div class="flex items-center gap-3">
           {#if !isFinished}
             <button
@@ -202,7 +204,7 @@
       </div>
       <div
         in:fly={{ delay: 400, duration: 200, y: -50 }}
-        class="bg-default-bg w-full rounded-lg mt-5 pl-2 chartWrapper"
+        class="bg-default-bg w-full rounded-lg mt-5 pl-2 border border-white/20 chartWrapper"
       >
         <canvas class="w-full" bind:this={chartElem}></canvas>
       </div>
@@ -221,7 +223,7 @@
       {numberOfRequests}
       {numberOfClients}
       {passedDuration}
-      {targetDuration}
+      {testDuration}
       {latestRPS}
       {minRPS}
       {avgRPS}

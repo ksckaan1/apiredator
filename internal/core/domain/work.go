@@ -8,7 +8,7 @@ type Stat struct {
 	StatusCodes    map[int]uint64 `json:"status_codes"`
 	StartedAt      time.Time      `json:"started_at"`
 	EndedAt        time.Time      `json:"ended_at"`
-	PassedDuration time.Duration  `json:"passed_duration"`
+	PassedDuration string         `json:"passed_duration"`
 }
 
 type RPS struct {

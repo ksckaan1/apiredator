@@ -34,6 +34,7 @@ func TestStartWork(t *testing.T) {
 				NumberOfRequests: 100,
 			},
 		},
+		0,
 	)
 
 	ctx := context.Background()

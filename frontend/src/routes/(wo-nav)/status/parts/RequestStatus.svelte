@@ -24,7 +24,7 @@
     {/if}
   </div>
   {#if testType === "count" && numberOfClients > 1}
-    <div class="text-sm text-white/40">
+    <div class="text-sm text-white/40 mt-3">
       {numberOfClients} clients X {numberOfRequests} requests
     </div>
   {/if}

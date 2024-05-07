@@ -33,9 +33,8 @@
   let numberOfRequestsValue: number = 1;
   let numberOfClientsValue: number = 1;
 
-  let durationHoursValue: number = 0;
-  let durationMinutesValue: number = 0;
-  let durationSecondsValue: number = 0;
+  let testDuration = "";
+  let requestTimeout = "";
 
   let activeBodyType: BodyType = "none";
   let activeLanguage: Language = "json";
@@ -99,9 +98,8 @@
         numberOfRequestsValue = cr.options.number_of_requests;
         numberOfClientsValue = cr.options.number_of_clients;
         activeTestType = cr.options.test_type;
-        durationHoursValue = cr.options.duration.hours;
-        durationMinutesValue = cr.options.duration.minutes;
-        durationSecondsValue = cr.options.duration.seconds;
+        testDuration = cr.options.test_duration;
+        requestTimeout = cr.options.request_timeout;
         activeBodyType = cr.request.body.type as BodyType;
         activeLanguage = cr.request.body.language as Language;
         rawBodyValue = cr.request.body.raw_value;
@@ -133,11 +131,8 @@
         number_of_requests: Number(numberOfRequestsValue),
         number_of_clients: Number(numberOfClientsValue),
         test_type: activeTestType,
-        duration: {
-          hours: Number(durationHoursValue),
-          minutes: Number(durationMinutesValue),
-          seconds: Number(durationSecondsValue),
-        },
+        test_duration: testDuration,
+        request_timeout: requestTimeout,
       },
     });
     try {
@@ -165,9 +160,8 @@
     <div transition:slide>
       <Options
         bind:activeTestType
-        bind:durationHoursValue
-        bind:durationMinutesValue
-        bind:durationSecondsValue
+        bind:testDuration
+        bind:requestTimeout
         bind:numberOfClientsValue
         bind:numberOfRequestsValue
       />

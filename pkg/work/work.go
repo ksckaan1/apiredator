@@ -29,11 +29,13 @@ type Work struct {
 	logger    port.Logger
 }
 
-func New(lg port.Logger, data *domain.Data) *Work {
+func New(lg port.Logger, data *domain.Data, requestTimeout time.Duration) *Work {
 	return &Work{
-		data:   data,
-		mut:    &sync.RWMutex{},
-		client: &http.Client{},
+		data: data,
+		mut:  &sync.RWMutex{},
+		client: &http.Client{
+			Timeout: requestTimeout,
+		},
 		logger: lg,
 		stat: &domain.Stat{
 			StatusCodes: map[int]uint64{},
@@ -43,12 +45,14 @@ func New(lg port.Logger, data *domain.Data) *Work {
 
 func (w *Work) Start(ctx context.Context) error {
 	if w.data.Options.TestType == domain.TTDuration {
-		seconds := time.Second * time.Duration(w.data.Options.Duration.Seconds)
-		minutes := time.Minute * time.Duration(w.data.Options.Duration.Minutes)
-		hours := time.Hour * time.Duration(w.data.Options.Duration.Hours)
-		dur := hours + minutes + seconds
+		dur, err := time.ParseDuration(w.data.Options.TestDuration)
+		if err != nil {
+			return fmt.Errorf("time: parse duration: %w", err)
+		}
+
+		w.data.Options.TestDuration = dur.String()
+
 		w.ctx, w.ctxCancel = context.WithTimeout(ctx, dur)
-		fmt.Println("dur", dur.String())
 	} else {
 		w.ctx, w.ctxCancel = context.WithCancel(ctx)
 	}
@@ -88,7 +92,7 @@ func (w *Work) run() error {
 		defer func() {
 			w.stat.EndedAt = time.Now()
 			w.isActive = false
-			w.stat.PassedDuration = w.stat.EndedAt.Sub(w.stat.StartedAt)
+			w.stat.PassedDuration = w.stat.EndedAt.Sub(w.stat.StartedAt).Round(time.Second).String()
 			w.ctxCancel()
 		}()
 
@@ -226,7 +230,7 @@ func (w *Work) GetDetails() *domain.Data {
 func (w *Work) reset() {
 	w.stat.StartedAt = time.Time{}
 	w.stat.EndedAt = time.Time{}
-	w.stat.PassedDuration = 0
+	w.stat.PassedDuration = "0s"
 	w.stat.SentCount = 0
 	w.stat.StatusCodes = map[int]uint64{}
 	w.stat.RPS.List = []uint64{}
@@ -254,7 +258,7 @@ func (w *Work) checkPeriodically() {
 			w.stat.RPS.Max = slices.Max(w.stat.RPS.List)
 			w.stat.RPS.Avg = getAvg(w.stat.RPS.List)
 
-			w.stat.PassedDuration = time.Since(w.stat.StartedAt)
+			w.stat.PassedDuration = time.Since(w.stat.StartedAt).Round(time.Second).String()
 			w.mut.Unlock()
 		}
 	}
