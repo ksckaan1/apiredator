@@ -1,9 +1,7 @@
 package logger
 
 import (
-	"fmt"
 	"io"
-	"runtime"
 	"strings"
 
 	"github.com/rs/zerolog"
@@ -41,6 +39,10 @@ func (z *Zerolog) WithLevel(l Level) *Zerolog {
 
 func (z *Zerolog) WithLayer(name string) *Zerolog {
 	z.layers = append(z.layers, name)
+	if len(z.layers) > 0 {
+		newZlog := z.zlog.With().Str("layer", strings.Join(z.layers, "/")).Logger()
+		z.zlog = &newZlog
+	}
 	return z
 }
 
@@ -55,54 +57,25 @@ func (z *Zerolog) WithTime() *Zerolog {
 }
 
 func (z *Zerolog) Debug(msg string, keyAndValues ...any) {
-	e := z.addKeyValues(z.zlog.Debug(), keyAndValues...)
-	e.Msg(msg)
+	z.zlog.Debug().Fields(keyAndValues).Msg(msg)
 }
 
 func (z *Zerolog) Error(msg string, keyAndValues ...any) {
-	e := z.addKeyValues(z.zlog.Error(), keyAndValues...)
-	e.Msg(msg)
+	z.zlog.Error().Fields(keyAndValues).Msg(msg)
 }
 
 func (z *Zerolog) Fatal(msg string, keyAndValues ...any) {
-	e := z.addKeyValues(z.zlog.Fatal(), keyAndValues...)
-	e.Msg(msg)
+	z.zlog.Fatal().Fields(keyAndValues).Msg(msg)
 }
 
 func (z *Zerolog) Info(msg string, keyAndValues ...any) {
-	e := z.addKeyValues(z.zlog.Info(), keyAndValues...)
-	e.Msg(msg)
+	z.zlog.Info().Fields(keyAndValues).Msg(msg)
 }
 
 func (z *Zerolog) Trace(msg string, keyAndValues ...any) {
-	e := z.addKeyValues(z.zlog.Trace(), keyAndValues...)
-	e.Msg(msg)
+	z.zlog.Trace().Fields(keyAndValues).Msg(msg)
 }
 
 func (z *Zerolog) Warning(msg string, keyAndValues ...any) {
-	e := z.addKeyValues(z.zlog.Warn(), keyAndValues...)
-	e.Msg(msg)
-}
-
-func (z *Zerolog) addKeyValues(e *zerolog.Event, keyAndValues ...any) *zerolog.Event {
-	if z.isCallerEnabled {
-		_, fp, line, ok := runtime.Caller(2)
-		if ok {
-			e = e.Str("caller", fmt.Sprintf("%s:%d", fp, line))
-		}
-	}
-	if len(z.layers) > 0 {
-		e = e.Any("layer", strings.Join(z.layers, "/"))
-	}
-	for i := range keyAndValues {
-		if i%2 == 1 {
-			continue
-		}
-		if i+1 >= len(keyAndValues) {
-			continue
-		}
-		e = e.Any(fmt.Sprintf("%v", keyAndValues[i]), keyAndValues[i+1])
-	}
-
-	return e
+	z.zlog.Warn().Fields(keyAndValues).Msg(msg)
 }
