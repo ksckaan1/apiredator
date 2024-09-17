@@ -9,7 +9,7 @@
     StopWork,
     WaitWork,
   } from "$lib/wailsjs/go/service/AppService";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { goto } from "$app/navigation";
   import Button from "$components/ui/Button.svelte";
   import type { domain } from "$lib/wailsjs/go/models";
@@ -48,6 +48,9 @@
       data: [],
       fill: true,
       borderColor: "rgb(225, 175, 75)",
+      borderWidth: 0,
+      pointRadius: 0,
+      pointBorderWidth: 0,
       tension: 0.5,
     },
   ];
@@ -64,22 +67,73 @@
     isFinished = true;
   };
 
+  const resizeEvent = () => {
+    var gradient = chartElem
+      .getContext("2d")!
+      .createLinearGradient(0, 0, 0, chartElem.height);
+
+    gradient.addColorStop(0, "rgba(225, 175, 75, .6)"); // Başlangıç rengi
+    gradient.addColorStop(1, "rgb(13, 15, 24)"); // Bitiş rengi
+
+    ch.data.datasets[0].backgroundColor = gradient;
+    ch.resize();
+  };
+
   onMount(async () => {
     ch = new Chart(chartElem, {
       type: "line",
       options: {
         aspectRatio: 16 / 4,
+        responsive: true,
+        layout: {
+          padding: {
+            top: 100,
+          },
+        },
+        scales: {
+          x: {
+            display: false, // X eksenini gizle
+          },
+          y: {
+            display: false, // Y eksenini gizle
+          },
+        },
+        plugins: {
+          legend: {
+            display: false, // Açıklamayı gizle
+          },
+          tooltip: {
+            enabled: false, // Araç ipuçlarını kapat
+          },
+        },
       },
       data: {
         labels: [],
         datasets: datasets,
       },
     });
+
+    var gradient = chartElem
+      .getContext("2d")!
+      .createLinearGradient(0, 0, 0, chartElem.height);
+
+    gradient.addColorStop(0, "rgba(225, 175, 75, .6)"); // Başlangıç rengi
+    gradient.addColorStop(1, "rgb(13, 15, 24)"); // Bitiş rengi
+
+    ch.data.datasets[0].backgroundColor = gradient;
+    ch.update();
+
+    window.addEventListener("resize", resizeEvent);
+
     let cr = await GetCurrentRequest();
     if (cr) {
       setCurrentRequest(cr);
     }
     getStats();
+  });
+
+  onDestroy(() => {
+    window.removeEventListener("resize", resizeEvent);
   });
 
   const setCurrentRequest = (cr: domain.Data) => {
@@ -202,13 +256,18 @@
           <Button on:click={onNewRequestButtonClicked}>New Request</Button>
         </div>
       </div>
-      <div
-        in:fly={{ delay: 400, duration: 200, y: -50 }}
-        class="bg-default-bg w-full rounded-lg mt-5 pl-2 border border-white/20 chartWrapper"
-      >
-        <canvas class="w-full" bind:this={chartElem}></canvas>
-      </div>
     </div>
+  </div>
+
+  <div
+    in:fly={{ delay: 400, duration: 200, y: -50 }}
+    class="bg-accent-bg w-screen"
+    style="--wails-draggable:drag"
+  >
+    <canvas
+      class="w-full bg-gradient-to-b from-accent-bg to-default-bg"
+      bind:this={chartElem}
+    ></canvas>
   </div>
 
   <div
