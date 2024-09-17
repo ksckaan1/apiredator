@@ -3,7 +3,4 @@
 
 <center><img width="50%" src="./icon.png"/></center>
 
-
-
-https://github.com/user-attachments/assets/44878eb1-4c00-4743-b843-b0f81d360d30
-
+https://github.com/user-attachments/assets/e7eb64c4-5f8a-4ca7-a3f1-4b8eb644ed44
