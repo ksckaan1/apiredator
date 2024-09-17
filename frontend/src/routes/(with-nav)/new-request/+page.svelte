@@ -30,10 +30,10 @@
 
   let activeTestType: string = "count";
 
-  let numberOfRequestsValue: number = 1;
+  let numberOfRequestsValue: number = 100;
   let numberOfClientsValue: number = 1;
 
-  let testDuration = "";
+  let testDuration = "1m";
   let requestTimeout = "";
 
   let activeBodyType: BodyType = "none";

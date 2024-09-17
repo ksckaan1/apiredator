@@ -35,8 +35,8 @@ func (a *App) Init(ctx context.Context) error {
 func (a *App) Run(ctx context.Context) error {
 	err := wails.Run(&options.App{
 		Title:  "APIredator",
-		Width:  1024,
-		Height: 900,
+		Width:  1600,
+		Height: 1000,
 		AssetServer: &assetserver.Options{
 			Assets: a.assets,
 		},
@@ -62,7 +62,7 @@ func (a *App) Run(ctx context.Context) error {
 			},
 		},
 		Debug: options.Debug{
-			OpenInspectorOnStartup: true,
+			OpenInspectorOnStartup: false,
 		},
 	})
 	if err != nil {

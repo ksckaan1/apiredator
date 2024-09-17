@@ -28,5 +28,5 @@ hr {
 }
 
 .tile h2 {
-  @apply text-lg font-extralight text-white/30;
+  @apply text-lg font-extralight text-primary;
 }
