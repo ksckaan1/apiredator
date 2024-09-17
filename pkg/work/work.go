@@ -3,6 +3,7 @@ package work
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -19,7 +20,7 @@ var _ port.Work = (*Work)(nil)
 
 type Work struct {
 	ctx       context.Context
-	ctxCancel context.CancelFunc
+	ctxCancel context.CancelCauseFunc
 	stat      *domain.Stat
 	data      *domain.Data
 	mut       *sync.RWMutex
@@ -51,10 +52,10 @@ func (w *Work) Start(ctx context.Context) error {
 		}
 
 		w.data.Options.TestDuration = dur.String()
-
-		w.ctx, w.ctxCancel = context.WithTimeout(ctx, dur)
+		timeCtx, _ := context.WithTimeoutCause(ctx, dur, ErrStopWork)
+		w.ctx, w.ctxCancel = context.WithCancelCause(timeCtx)
 	} else {
-		w.ctx, w.ctxCancel = context.WithCancel(ctx)
+		w.ctx, w.ctxCancel = context.WithCancelCause(ctx)
 	}
 
 	w.reset()
@@ -70,7 +71,7 @@ func (w *Work) Start(ctx context.Context) error {
 }
 
 func (w *Work) Stop() {
-	w.ctxCancel()
+	w.ctxCancel(ErrStopWork)
 }
 
 func (w *Work) IsActive() bool {
@@ -93,7 +94,7 @@ func (w *Work) run() error {
 			w.stat.EndedAt = time.Now()
 			w.isActive = false
 			w.stat.PassedDuration = w.stat.EndedAt.Sub(w.stat.StartedAt).Round(time.Second).String()
-			w.ctxCancel()
+			w.ctxCancel(ErrStopWork)
 		}()
 
 		go w.checkPeriodically()
@@ -110,14 +111,27 @@ func (w *Work) run() error {
 					for {
 						err := w.makeRequest()
 						if err != nil {
-							break
+							if errors.Is(err, ErrStopWork) || errors.Is(err, context.DeadlineExceeded) {
+								break
+							}
+							w.logger.Error("error when making request",
+								"error", err.Error(),
+							)
 						}
 					}
 				} else {
 					for range w.data.Options.NumberOfRequests {
 						err := w.makeRequest()
 						if err != nil {
-							break
+							if errors.Is(err, ErrRequestTimeout) {
+
+							}
+							if errors.Is(err, ErrStopWork) || errors.Is(err, context.DeadlineExceeded) {
+								break
+							}
+							w.logger.Error("error when making request",
+								"error", err.Error(),
+							)
 						}
 					}
 				}
@@ -172,7 +186,19 @@ func (w *Work) generateRequest(requestData domain.Request) (*http.Request, error
 	if err != nil {
 		return nil, fmt.Errorf("generate body: %w", err)
 	}
-	req, err := http.NewRequestWithContext(w.ctx, requestData.Method, requestData.URL, body)
+
+	reqCtx := w.ctx
+
+	if w.data.Options.RequestTimeout != "" {
+		reqTimeout, err := time.ParseDuration(w.data.Options.RequestTimeout)
+		if err != nil {
+			return nil, fmt.Errorf("time: parse duration: %w", err)
+		}
+
+		reqCtx, _ = context.WithTimeoutCause(w.ctx, reqTimeout, ErrRequestTimeout)
+	}
+
+	req, err := http.NewRequestWithContext(reqCtx, requestData.Method, requestData.URL, body)
 	if err != nil {
 		return nil, fmt.Errorf("new request with context: %w", err)
 	}
