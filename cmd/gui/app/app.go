@@ -9,26 +9,41 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
+	"gorm.io/gorm"
 
-	"github.com/ksckaan1/apiredator/internal/core/port"
-	"github.com/ksckaan1/apiredator/internal/core/service"
+	"github.com/ksckaan1/apiredator/internal/domain/core/port"
+	"github.com/ksckaan1/apiredator/internal/domain/core/service"
+	"github.com/ksckaan1/apiredator/internal/infrastructure/repository"
 )
 
 type App struct {
 	appService *service.AppService
 	logger     port.Logger
 	assets     embed.FS
+	db         *gorm.DB
 }
 
-func New(lg port.Logger, assets embed.FS) *App {
+func New(lg port.Logger, assets embed.FS, db *gorm.DB) *App {
 	return &App{
 		logger: lg,
 		assets: assets,
+		db:     db,
 	}
 }
 
 func (a *App) Init(ctx context.Context) error {
-	a.appService = service.NewAppService(a.logger)
+	repo, err := repository.NewRepository(a.db)
+	if err != nil {
+		return fmt.Errorf("init app: %w", err)
+	}
+
+	err = repo.Migrate(ctx)
+	if err != nil {
+		return fmt.Errorf("repo: migrate: %w", err)
+	}
+
+	a.appService = service.NewAppService(a.logger, repo)
+
 	return nil
 }
 

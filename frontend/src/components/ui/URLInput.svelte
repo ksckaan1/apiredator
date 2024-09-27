@@ -5,7 +5,6 @@
   export let placeholder: string = "";
   export let label: string = "";
 
-  let isURLEditing = false;
   let inputElem: HTMLInputElement;
 
   const highlightText = (text: string): string => {
@@ -30,12 +29,7 @@
   $: if ($activeEnvVars || value) highlightedText = highlightText(value);
 
   const focusInput = () => {
-    if (!isURLEditing) isURLEditing = true;
-    setTimeout(() => inputElem.focus(), 10);
-  };
-
-  const listenKey = (e: any) => {
-    if (e.key === "Enter") inputElem.blur();
+    inputElem.focus();
   };
 </script>
 
@@ -51,28 +45,15 @@
       {label}
     </div>
   {/if}
-  {#if isURLEditing}
-    <input
-      bind:this={inputElem}
-      class="flex-1 w-full px-3 py-2 bg-default-bg focus:outline-none"
-      autocorrect="off"
-      autocapitalize="none"
-      type="url"
-      {placeholder}
-      bind:value
-      on:blur={() => (isURLEditing = false)}
-      on:keypress={listenKey}
-    />
-  {:else}
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div
-      on:click={focusInput}
-      class="flex-1 w-full px-3 py-2 bg-default-bg cursor-text"
-    >
-      {@html highlightedText}
-    </div>
-  {/if}
+  <input
+    bind:this={inputElem}
+    class="flex-1 w-full px-3 py-2 bg-default-bg focus:outline-none"
+    autocorrect="off"
+    autocapitalize="none"
+    type="url"
+    {placeholder}
+    bind:value
+  />
   <slot name="tail" />
 </div>
 

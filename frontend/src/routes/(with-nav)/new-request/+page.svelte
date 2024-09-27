@@ -18,7 +18,7 @@
     SetCurrentRequest,
     StartCurrentRequest,
   } from "$lib/wailsjs/go/service/AppService";
-  import { domain } from "$lib/wailsjs/go/models";
+  import { models } from "$lib/wailsjs/go/models";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import Options from "./parts/Options.svelte";
@@ -35,6 +35,7 @@
 
   let testDuration = "1m";
   let requestTimeout = "";
+  let keepAlive = true;
 
   let activeBodyType: BodyType = "none";
   let activeLanguage: Language = "json";
@@ -106,6 +107,7 @@
         binaryValue = cr.request.body.binary;
         formdataValue = cr.request.body.formdata as FormData[];
         xwwwformdataValue = cr.request.body.xwwwformdata;
+        keepAlive = cr.options.keep_alive;
       }
     } catch (err) {
       console.error(err);
@@ -113,7 +115,7 @@
   });
 
   const onSendBtnClicked = async () => {
-    let data: domain.Data = new domain.Data({
+    let data: models.Data = new models.Data({
       request: {
         method: activeRequestMethod,
         url: urlValue,
@@ -133,6 +135,7 @@
         test_type: activeTestType,
         test_duration: testDuration,
         request_timeout: requestTimeout,
+        keep_alive: keepAlive,
       },
     });
     try {
@@ -164,6 +167,7 @@
         bind:requestTimeout
         bind:numberOfClientsValue
         bind:numberOfRequestsValue
+        bind:keepAlive
       />
     </div>
   {:else if activeTab === "header"}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { KeyValueData } from "$models/key_value_data";
+  import type { KeyValueData } from "$types/custom";
   import EditableInput from "./EditableInput.svelte";
   import Switch from "./Switch.svelte";
 

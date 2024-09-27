@@ -1,4 +1,23 @@
-package domain
+package models
+
+import "time"
+
+type Bookmark struct {
+	ID       string    `json:"id"`
+	CreateAt time.Time `json:"create_at"`
+	Title    string    `json:"title"`
+	Request  Request   `json:"request"`
+	Options  Options   `json:"options"`
+	Stat     Stat      `json:"stat"`
+	Tags     []string  `json:"tags"`
+}
+
+type BookmarkList struct {
+	Bookmarks []Bookmark `json:"bookmarks"`
+	Limit     int        `json:"limit"`
+	Offset    int        `json:"offset"`
+	Count     int64      `json:"count"`
+}
 
 type Data struct {
 	Request Request `json:"request"`
@@ -41,6 +60,7 @@ type Options struct {
 	RequestTimeout   string   `json:"request_timeout"`
 	NumberOfClients  uint64   `json:"number_of_clients"`
 	NumberOfRequests uint64   `json:"number_of_requests"`
+	KeepAlive        bool     `json:"keep_alive"`
 }
 
 type TestType string

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
+  import { fade, slide } from "svelte/transition";
   import Section from "$components/ui/Section.svelte";
   import NumberInput from "$components/ui/NumberInput.svelte";
   import SegmentedSelect from "$components/ui/SegmentedSelect.svelte";
@@ -10,6 +10,7 @@
   export let numberOfClientsValue = 1;
   export let testDuration = "";
   export let requestTimeout = "";
+  export let keepAlive = true;
 
   let testTypes = [
     {
@@ -30,22 +31,13 @@
     </div>
   </Section>
   <Section
-    title="Number of Clients"
-    subtitle="How many clients will make requests at the same time?"
-  >
-    <NumberInput bind:value={numberOfClientsValue} min={1} max={100000000000} />
-  </Section>
+    title="Keep Alive"
+    subtitle="Keep-alive reduces latency and network overhead by reusing existing connections."
+    isActive={keepAlive}
+  ></Section>
   <div>
     {#if activeTestType === "count"}
-      <div
-        in:fade={{
-          delay: 200,
-          duration: 200,
-        }}
-        out:fade={{
-          duration: 200,
-        }}
-      >
+      <div transition:slide>
         <Section
           title="Number of Requests"
           subtitle="How many requests per client?"
@@ -58,15 +50,7 @@
         </Section>
       </div>
     {:else if activeTestType === "duration"}
-      <div
-        in:fade={{
-          delay: 200,
-          duration: 200,
-        }}
-        out:fade={{
-          duration: 200,
-        }}
-      >
+      <div transition:slide>
         <Section
           title="Duration"
           subtitle="How long will requests be sent in total?"
@@ -85,6 +69,12 @@
       </div>
     {/if}
   </div>
+  <Section
+    title="Number of Clients"
+    subtitle="How many clients will make requests at the same time?"
+  >
+    <NumberInput bind:value={numberOfClientsValue} min={1} max={100000000000} />
+  </Section>
   <Section
     title="Request Timeout"
     subtitle="What is the maximum timeout for each request?"

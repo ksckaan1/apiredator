@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ksckaan1/apiredator/internal/core/domain"
+	"github.com/ksckaan1/apiredator/internal/domain/core/models"
 	"github.com/ksckaan1/apiredator/pkg/logger"
 )
 
@@ -20,17 +20,17 @@ func TestStartWork(t *testing.T) {
 
 	w := New(
 		lg,
-		&domain.Data{
-			Request: domain.Request{
+		&models.Data{
+			Request: models.Request{
 				Method: http.MethodPost,
 				URL:    "https://jsonplaceholder.typicode.com/posts",
-				Header: []domain.KeyValueData{},
-				Body: domain.Body{
+				Header: []models.KeyValueData{},
+				Body: models.Body{
 					Type:     "raw",
 					RawValue: `{"title":"foo","body":"bar","userId":1}`,
 				},
 			},
-			Options: domain.Options{
+			Options: models.Options{
 				NumberOfRequests: 100,
 			},
 		},

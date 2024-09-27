@@ -8,8 +8,8 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/ksckaan1/apiredator/internal/core/domain"
-	"github.com/ksckaan1/apiredator/internal/core/port"
+	"github.com/ksckaan1/apiredator/internal/domain/core/models"
+	"github.com/ksckaan1/apiredator/internal/domain/core/port"
 	"github.com/ksckaan1/apiredator/pkg/work"
 )
 
@@ -19,11 +19,13 @@ type AppService struct {
 	ctx         context.Context
 	currentWork port.Work
 	logger      port.Logger
+	repository  port.Repository
 }
 
-func NewAppService(lg port.Logger) *AppService {
+func NewAppService(lg port.Logger, repository port.Repository) *AppService {
 	return &AppService{
-		logger: lg,
+		logger:     lg,
+		repository: repository,
 	}
 }
 
@@ -31,7 +33,7 @@ func (a *AppService) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *AppService) SetCurrentRequest(data domain.Data) error {
+func (a *AppService) SetCurrentRequest(data models.Data) error {
 	var reqTimeout time.Duration
 
 	if data.Options.RequestTimeout != "" {
@@ -49,7 +51,7 @@ func (a *AppService) SetCurrentRequest(data domain.Data) error {
 	return nil
 }
 
-func (a *AppService) GetCurrentRequest() (*domain.Data, error) {
+func (a *AppService) GetCurrentRequest() (*models.Data, error) {
 	if a.currentWork == nil {
 		a.logger.Error("current work not found")
 		return nil, nil
@@ -104,7 +106,7 @@ func (a *AppService) SelectFiles(isMultiple bool) []string {
 	return []string{file}
 }
 
-func (a *AppService) GetStats() (*domain.Stat, error) {
+func (a *AppService) GetStats() (*models.Stat, error) {
 	if a.currentWork == nil {
 		return nil, errors.New("no work started")
 	}
@@ -141,4 +143,55 @@ func (a *AppService) WaitWork() error {
 	a.currentWork.Wait()
 	a.logger.Info("finished current work")
 	return nil
+}
+
+func (a *AppService) AddToBookmark(title string, tags []string) error {
+	d, err := a.GetCurrentRequest()
+	if err != nil {
+		return fmt.Errorf("get current request: %w", err)
+	}
+
+	s, err := a.GetStats()
+	if err != nil {
+		return fmt.Errorf("get stats: %w", err)
+	}
+
+	id, err := a.repository.CreateBookmark(a.ctx, &models.Bookmark{
+		Title:   title,
+		Request: d.Request,
+		Options: d.Options,
+		Stat:    *s,
+		Tags:    tags,
+	})
+	if err != nil {
+		return fmt.Errorf("repository: create bookmark: %w", err)
+	}
+
+	a.logger.Info("bookmark created",
+		"id", id,
+	)
+
+	return nil
+}
+
+func (a *AppService) GetAllBookmarks(searchTerm, tag string, limit int, offset int) (*models.BookmarkList, error) {
+	result, err := a.repository.GetAllBookmarks(a.ctx, searchTerm, tag, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("repository: get all bookmarks: %w", err)
+	}
+
+	a.logger.Info("all bookmarks fetched",
+		"limit", limit,
+		"offset", offset,
+	)
+
+	return result, nil
+}
+
+func (a *AppService) GetAllTags() ([]string, error) {
+	tags, err := a.repository.GetAllTags(a.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("repository: get all tags: %w", err)
+	}
+	return tags, nil
 }

@@ -12,7 +12,8 @@ const config = {
 			"$types": "src/lib/types",
 			"$assets": "src/lib/assets",
 			"$utils": "src/lib/utils",
-			"$stores": "src/store"
+			"$stores": "src/store",
+
 		}
 	},
 };

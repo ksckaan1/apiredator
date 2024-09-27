@@ -1,4 +1,4 @@
-export namespace domain {
+export namespace models {
 	
 	export class KeyValueData {
 	    is_active: boolean;
@@ -62,7 +62,83 @@ export namespace domain {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class ResponseInfo {
+	    Durations: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ResponseInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Durations = source["Durations"];
+	    }
+	}
+	export class RPS {
+	    list: number[];
+	    latest: number;
+	    min: number;
+	    avg: number;
+	    max: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new RPS(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.list = source["list"];
+	        this.latest = source["latest"];
+	        this.min = source["min"];
+	        this.avg = source["avg"];
+	        this.max = source["max"];
+	    }
+	}
+	export class Stat {
+	    sent_count: number;
+	    rps: RPS;
+	    status_codes: {[key: number]: number};
+	    // Go type: time
+	    started_at: any;
+	    // Go type: time
+	    ended_at: any;
+	    passed_duration: string;
+	    ResponseInfo?: ResponseInfo;
+	
+	    static createFrom(source: any = {}) {
+	        return new Stat(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sent_count = source["sent_count"];
+	        this.rps = this.convertValues(source["rps"], RPS);
+	        this.status_codes = source["status_codes"];
+	        this.started_at = this.convertValues(source["started_at"], null);
+	        this.ended_at = this.convertValues(source["ended_at"], null);
+	        this.passed_duration = source["passed_duration"];
+	        this.ResponseInfo = this.convertValues(source["ResponseInfo"], ResponseInfo);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -82,6 +158,7 @@ export namespace domain {
 	    request_timeout: string;
 	    number_of_clients: number;
 	    number_of_requests: number;
+	    keep_alive: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Options(source);
@@ -94,6 +171,7 @@ export namespace domain {
 	        this.request_timeout = source["request_timeout"];
 	        this.number_of_clients = source["number_of_clients"];
 	        this.number_of_requests = source["number_of_requests"];
+	        this.keep_alive = source["keep_alive"];
 	    }
 	}
 	export class Request {
@@ -118,7 +196,86 @@ export namespace domain {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Bookmark {
+	    id: string;
+	    // Go type: time
+	    create_at: any;
+	    title: string;
+	    request: Request;
+	    options: Options;
+	    stat: Stat;
+	    tags: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Bookmark(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.create_at = this.convertValues(source["create_at"], null);
+	        this.title = source["title"];
+	        this.request = this.convertValues(source["request"], Request);
+	        this.options = this.convertValues(source["options"], Options);
+	        this.stat = this.convertValues(source["stat"], Stat);
+	        this.tags = source["tags"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class BookmarkList {
+	    bookmarks: Bookmark[];
+	    limit: number;
+	    offset: number;
+	    count: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new BookmarkList(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.bookmarks = this.convertValues(source["bookmarks"], Bookmark);
+	        this.limit = source["limit"];
+	        this.offset = source["offset"];
+	        this.count = source["count"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -150,7 +307,7 @@ export namespace domain {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -167,69 +324,9 @@ export namespace domain {
 	
 	
 	
-	export class RPS {
-	    list: number[];
-	    latest: number;
-	    min: number;
-	    avg: number;
-	    max: number;
 	
-	    static createFrom(source: any = {}) {
-	        return new RPS(source);
-	    }
 	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.list = source["list"];
-	        this.latest = source["latest"];
-	        this.min = source["min"];
-	        this.avg = source["avg"];
-	        this.max = source["max"];
-	    }
-	}
 	
-	export class Stat {
-	    sent_count: number;
-	    rps: RPS;
-	    status_codes: {[key: number]: number};
-	    // Go type: time
-	    started_at: any;
-	    // Go type: time
-	    ended_at: any;
-	    passed_duration: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new Stat(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.sent_count = source["sent_count"];
-	        this.rps = this.convertValues(source["rps"], RPS);
-	        this.status_codes = source["status_codes"];
-	        this.started_at = this.convertValues(source["started_at"], null);
-	        this.ended_at = this.convertValues(source["ended_at"], null);
-	        this.passed_duration = source["passed_duration"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
 
 }
 

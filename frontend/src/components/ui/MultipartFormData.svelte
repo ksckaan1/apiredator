@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { FormData } from "$models/form_data";
+  import type { FormData } from "$types/custom";
   import DropdownSelect from "./DropdownSelect.svelte";
   import EditableInput from "./EditableInput.svelte";
   import FileSelector from "./FileSelector.svelte";

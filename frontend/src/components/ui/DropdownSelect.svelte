@@ -31,7 +31,7 @@
   {#if isFocused}
     <div
       transition:slide={{ duration: 200 }}
-      class="absolute top-0 left-0 z-50 w-full border rounded bg-accent-bg border-white/20"
+      class="absolute top-0 left-0 z-50 w-full border rounded bg-accent-bg border-white/20 overflow-y-auto max-h-96"
     >
       <button
         class="block w-full px-3 py-2 text-left hover:bg-white/5 {items.find(

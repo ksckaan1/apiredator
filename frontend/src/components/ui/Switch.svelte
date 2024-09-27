@@ -3,7 +3,7 @@
 </script>
 
 <button
-  class="relative flex items-center transition-all duration-200 border rounded-full cursor-pointer h-7 w-14 border-white/20"
+  class="relative flex flex-shrink-0 items-center transition-all duration-200 border rounded-full cursor-pointer h-7 w-14 border-white/20"
   class:active={value}
   on:click={() => (value = !value)}
 >
