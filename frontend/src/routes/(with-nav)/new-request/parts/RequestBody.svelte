@@ -13,52 +13,65 @@
     Language,
   } from "$types/custom";
 
-  export let bodyTypes: BodyTypeItem[] = [
-    {
-      title: "None",
-      value: "none",
-    },
-    {
-      title: "form-data",
-      value: "form-data",
-    },
-    {
-      title: "x-www-formdata",
-      value: "x-www-formdata",
-    },
-    {
-      title: "Raw",
-      value: "raw",
-    },
-    {
-      title: "Binary",
-      value: "binary",
-    },
-  ];
-  export let activeBodyType: BodyType = "binary";
-  export let languageList: LanguageItem[] = [
-    {
-      title: "Plain Text",
-      value: "plain",
-    },
-    {
-      title: "JSON",
-      value: "json",
-    },
-    {
-      title: "JavaScript",
-      value: "javascript",
-    },
-    {
-      title: "XML",
-      value: "xml",
-    },
-  ];
-  export let activeLanguage: Language = "javascript";
-  export let rawBodyValue: string = "";
-  export let xwwwformdataValue: KeyValueData[] = [];
-  export let formdataValue: FormData[] = [];
-  export let binaryValue: string[] = [];
+  interface Props {
+    activeBodyType: BodyType;
+    bodyTypes?: BodyTypeItem[];
+    languageList?: LanguageItem[];
+    activeLanguage: Language;
+    rawBodyValue: string;
+    formdataValue: FormData[];
+    xwwwformdataValue: KeyValueData[];
+    binaryValue: string[];
+  }
+
+  let {
+    activeBodyType = $bindable("binary"),
+    bodyTypes = [
+      {
+        title: "None",
+        value: "none",
+      },
+      {
+        title: "form-data",
+        value: "form-data",
+      },
+      {
+        title: "x-www-formdata",
+        value: "x-www-formdata",
+      },
+      {
+        title: "Raw",
+        value: "raw",
+      },
+      {
+        title: "Binary",
+        value: "binary",
+      },
+    ],
+    languageList = [
+      {
+        title: "Plain Text",
+        value: "plain",
+      },
+      {
+        title: "JSON",
+        value: "json",
+      },
+      {
+        title: "JavaScript",
+        value: "javascript",
+      },
+      {
+        title: "XML",
+        value: "xml",
+      },
+    ],
+    activeLanguage = $bindable("javascript"),
+    rawBodyValue = $bindable(""),
+    formdataValue = $bindable([]),
+    xwwwformdataValue = $bindable([]),
+    binaryValue = $bindable([]),
+  }: Props = $props();
 </script>
 
 <div class="my-3 grid grid-cols-[11rem,8rem] gap-x-3 items-center">

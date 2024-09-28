@@ -1,24 +1,42 @@
 <script lang="ts">
-  import { fade, fly } from "svelte/transition";
+  import { fly } from "svelte/transition";
   import DurationStatus from "./DurationStatus.svelte";
   import RequestStatus from "./RequestStatus.svelte";
   import TimeStatus from "./TimeStatus.svelte";
   import StatusCodes from "./StatusCodes.svelte";
   import RpsStatus from "./RPSStatus.svelte";
 
-  export let testType = "";
-  export let sentCount = 0;
-  export let numberOfClients = 0;
-  export let numberOfRequests = 0;
-  export let passedDuration = "0s";
-  export let testDuration = "0s";
-  export let latestRPS = 0;
-  export let minRPS = 0;
-  export let avgRPS = 0;
-  export let maxRPS = 0;
-  export let startedAt = "";
-  export let endedAt = "";
-  export let statusCodes: { [key: number]: number } = {};
+  interface Props {
+    testType?: string;
+    sentCount?: number;
+    numberOfClients?: number;
+    numberOfRequests?: number;
+    passedDuration?: string;
+    testDuration?: string;
+    latestRPS?: number;
+    minRPS?: number;
+    avgRPS?: number;
+    maxRPS?: number;
+    startedAt?: string;
+    endedAt?: string;
+    statusCodes?: { [key: number]: number };
+  }
+
+  let {
+    testType = $bindable("count"),
+    sentCount = $bindable(0),
+    numberOfClients = $bindable(0),
+    numberOfRequests = $bindable(0),
+    passedDuration = $bindable("0s"),
+    testDuration = $bindable("0s"),
+    latestRPS = $bindable(0),
+    minRPS = $bindable(0),
+    avgRPS = $bindable(0),
+    maxRPS = $bindable(0),
+    startedAt = $bindable(""),
+    endedAt = $bindable(""),
+    statusCodes = $bindable({}),
+  }: Props = $props();
 </script>
 
 <div class="statuses mt-5">

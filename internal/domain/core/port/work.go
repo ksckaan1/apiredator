@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 
-	"github.com/ksckaan1/apiredator/internal/core/domain"
+	"github.com/ksckaan1/apiredator/internal/domain/core/models"
 )
 
 type Work interface {
@@ -11,6 +11,6 @@ type Work interface {
 	Stop()
 	IsActive() bool
 	Wait()
-	GetStats() domain.Stat
-	GetDetails() *domain.Data
+	GetStats() models.Stat
+	GetDetails() *models.Data
 }

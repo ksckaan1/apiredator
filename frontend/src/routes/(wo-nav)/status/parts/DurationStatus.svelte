@@ -1,9 +1,17 @@
 <script lang="ts">
-  import { convertSeconds } from "$utils/time";
-  export let testType = "duration";
-  export let passedDuration = "0s";
-  export let testDuration = "0s";
-  export let numberOfClients = 1;
+  interface Props {
+    testType?: string;
+    passedDuration?: string;
+    testDuration?: string;
+    numberOfClients?: number;
+  }
+
+  let {
+    testType = $bindable("duration"),
+    passedDuration = $bindable("0s"),
+    testDuration = $bindable("0s"),
+    numberOfClients = $bindable(1),
+  }: Props = $props();
 </script>
 
 <div class="tile">

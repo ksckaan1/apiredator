@@ -1,13 +1,13 @@
 <script lang="ts">
   import { goto, onNavigate } from "$app/navigation";
   import { page } from "$app/stores";
-  import { onMount } from "svelte";
   import { screenStore } from "../store/screen";
+  import Icon from "@iconify/svelte";
 
-  let activeNavBarItemIndex = -1;
-  let showIndicator = false;
+  let activeNavBarItemIndex = $state(-1);
+  let showIndicator = $state(false);
 
-  onMount(() => {
+  $effect(() => {
     setNavItem($page.route.id ?? "");
   });
 
@@ -24,20 +24,14 @@
     {
       id: "new-request",
       title: "New Request",
-      icon: "fa-solid fa-globe",
+      icon: "ph:globe",
       rgx: /\/new\-request/,
     },
     {
-      id: "history",
-      title: "History",
-      icon: "fa-solid fa-clock-rotate-left",
-      rgx: /\/history/,
-    },
-    {
-      id: "environment",
-      title: "Environments",
-      icon: "fa-solid fa-recycle",
-      rgx: /\/environment/,
+      id: "bookmarks",
+      title: "Bookmarks",
+      icon: "material-symbols:bookmark-outline",
+      rgx: /\/bookmarks/,
     },
   ];
 </script>
@@ -52,22 +46,19 @@
     ></div>
   {/if}
   {#each navBarItems as item, index}
+    <!-- svelte-ignore a11y_consider_explicit_label -->
     <button
       class="z-20 flex items-center justify-center w-full cursor-pointer aspect-square"
-      on:click={() => {
+      onclick={() => {
         $screenStore.active = item.id;
         goto(`/${item.id}`);
       }}
-      data-tooltip-message={item.title}
-      data-tooltip-position="right"
     >
-      <i
-        class="{item.icon} {index == activeNavBarItemIndex
-          ? 'text-primary'
-          : 'text-zinc-500'} text-3xl transition-colors duration-200"
-        data-tooltip-message={item.title}
-        data-tooltip-position="right"
-      ></i>
+      <Icon
+        class={`${activeNavBarItemIndex == index ? "text-primary" : "text-white/30"}`}
+        icon={item.icon}
+        width="40"
+      />
     </button>
   {/each}
 </nav>

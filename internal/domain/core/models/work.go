@@ -1,4 +1,4 @@
-package domain
+package models
 
 import "time"
 
@@ -9,6 +9,7 @@ type Stat struct {
 	StartedAt      time.Time      `json:"started_at"`
 	EndedAt        time.Time      `json:"ended_at"`
 	PassedDuration string         `json:"passed_duration"`
+	ResponseInfo   *ResponseInfo
 }
 
 type RPS struct {
@@ -17,4 +18,8 @@ type RPS struct {
 	Min    uint64   `json:"min"`
 	Avg    float64  `json:"avg"`
 	Max    uint64   `json:"max"`
+}
+
+type ResponseInfo struct {
+	Durations []time.Duration
 }

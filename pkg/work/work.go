@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ksckaan1/apiredator/internal/core/domain"
-	"github.com/ksckaan1/apiredator/internal/core/port"
+	"github.com/ksckaan1/apiredator/internal/domain/core/models"
+	"github.com/ksckaan1/apiredator/internal/domain/core/port"
 )
 
 var _ port.Work = (*Work)(nil)
@@ -21,8 +21,8 @@ var _ port.Work = (*Work)(nil)
 type Work struct {
 	ctx       context.Context
 	ctxCancel context.CancelCauseFunc
-	stat      *domain.Stat
-	data      *domain.Data
+	stat      *models.Stat
+	data      *models.Data
 	mut       *sync.RWMutex
 	client    *http.Client
 	err       error
@@ -30,22 +30,27 @@ type Work struct {
 	logger    port.Logger
 }
 
-func New(lg port.Logger, data *domain.Data, requestTimeout time.Duration) *Work {
+func New(lg port.Logger, data *models.Data, requestTimeout time.Duration) *Work {
+
 	return &Work{
 		data: data,
 		mut:  &sync.RWMutex{},
 		client: &http.Client{
 			Timeout: requestTimeout,
+			Transport: &http.Transport{
+				DisableKeepAlives: data.Options.KeepAlive,
+				IdleConnTimeout:   1 * time.Second,
+			},
 		},
 		logger: lg,
-		stat: &domain.Stat{
+		stat: &models.Stat{
 			StatusCodes: map[int]uint64{},
 		},
 	}
 }
 
 func (w *Work) Start(ctx context.Context) error {
-	if w.data.Options.TestType == domain.TTDuration {
+	if w.data.Options.TestType == models.TTDuration {
 		dur, err := time.ParseDuration(w.data.Options.TestDuration)
 		if err != nil {
 			return fmt.Errorf("time: parse duration: %w", err)
@@ -82,7 +87,7 @@ func (w *Work) Wait() {
 	<-w.ctx.Done()
 }
 
-func (w *Work) GetStats() domain.Stat {
+func (w *Work) GetStats() models.Stat {
 	return *w.stat
 }
 
@@ -107,7 +112,7 @@ func (w *Work) run() error {
 				w.logger.Debug("client started",
 					"num", i,
 				)
-				if w.data.Options.TestType == domain.TTDuration {
+				if w.data.Options.TestType == models.TTDuration {
 					for {
 						err := w.makeRequest()
 						if err != nil {
@@ -181,7 +186,7 @@ func (w *Work) addResponse(statusCode int) {
 	w.stat.StatusCodes[statusCode] += 1
 }
 
-func (w *Work) generateRequest(requestData domain.Request) (*http.Request, error) {
+func (w *Work) generateRequest(requestData models.Request) (*http.Request, error) {
 	body, err := w.generateBody(requestData.Body)
 	if err != nil {
 		return nil, fmt.Errorf("generate body: %w", err)
@@ -207,7 +212,7 @@ func (w *Work) generateRequest(requestData domain.Request) (*http.Request, error
 	return req, nil
 }
 
-func (w *Work) generateBody(b domain.Body) (io.Reader, error) {
+func (w *Work) generateBody(b models.Body) (io.Reader, error) {
 	var body io.Reader
 	switch b.Type {
 	case "raw":
@@ -218,7 +223,7 @@ func (w *Work) generateBody(b domain.Body) (io.Reader, error) {
 	return body, nil
 }
 
-func (w *Work) generateFormData(fd []domain.FormData) (io.Reader, string, error) {
+func (w *Work) generateFormData(fd []models.FormData) (io.Reader, string, error) {
 	body := &bytes.Buffer{}
 
 	mw := multipart.NewWriter(body)
@@ -240,7 +245,7 @@ func (w *Work) generateFormData(fd []domain.FormData) (io.Reader, string, error)
 	return nil, mw.FormDataContentType(), nil
 }
 
-func (w *Work) addHeaders(req *http.Request, header []domain.KeyValueData) {
+func (w *Work) addHeaders(req *http.Request, header []models.KeyValueData) {
 	for _, item := range header {
 		if !item.IsActive {
 			continue
@@ -249,7 +254,7 @@ func (w *Work) addHeaders(req *http.Request, header []domain.KeyValueData) {
 	}
 }
 
-func (w *Work) GetDetails() *domain.Data {
+func (w *Work) GetDetails() *models.Data {
 	return w.data
 }
 

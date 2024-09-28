@@ -1,22 +1,26 @@
 <script lang="ts">
-  export let statusCodes: { [key: number]: number } = {};
+  interface Props {
+    statusCodes?: { [key: number]: number };
+  }
 
-  let keys: number[] = [];
+  let { statusCodes = $bindable({}) }: Props = $props();
 
-  $: keys = Object.keys(statusCodes).map((sc) => Number(sc));
+  let isCollapsed = $state(true);
 
-  let isCollapsed = true;
+  let keys: number[] = $derived.by(() => {
+    return Object.keys(statusCodes).map((sc) => Number(sc));
+  });
 </script>
 
 <div class="tile">
   <h1>Status Codes</h1>
   {#if statusCodes}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="flex flex-col gap-2 overflow-y-hidden cursor-pointer mt-3"
       class:max-h-32={isCollapsed}
-      on:click={() => (isCollapsed = !isCollapsed)}
+      onclick={() => (isCollapsed = !isCollapsed)}
     >
       {#each keys as sc}
         <div class="flex justify-between items-center gap-2">
@@ -50,10 +54,10 @@
       {/each}
     </div>
     {#if isCollapsed && keys.length > 4}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
       <span
-        on:click={() => (isCollapsed = !isCollapsed)}
+        onclick={() => (isCollapsed = !isCollapsed)}
         class="text-white/40 cursor-pointer">click to see more...</span
       >
     {/if}

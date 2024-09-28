@@ -1,6 +1,11 @@
 <script lang="ts">
-  export let requestMethod = "GET";
-  export let requestURL = "";
+  interface Props {
+    requestMethod?: string;
+    requestURL?: string;
+  }
+
+  let { requestMethod = $bindable("GET"), requestURL = $bindable("") }: Props =
+    $props();
 
   let requestMethods = [
     {
@@ -46,7 +51,9 @@
   ];
 </script>
 
-<div class="border border-white/20 rounded px-3 py-2 h-18 w-full flex gap-3">
+<div
+  class="border border-white/20 rounded bg-accent-bg px-3 py-2 h-18 w-full flex gap-3"
+>
   <div class={requestMethods.find((r) => r.value === requestMethod)?.color}>
     {requestMethod}
   </div>

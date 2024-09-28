@@ -6,7 +6,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/ksckaan1/apiredator/internal/core/port"
+	"github.com/ksckaan1/apiredator/internal/domain/core/port"
 )
 
 var _ port.Logger = (*Zerolog)(nil)

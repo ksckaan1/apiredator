@@ -7,8 +7,12 @@
   import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
   import { ayuTheme } from "$lib/theme/ayu-dark";
 
-  export let value = "";
-  export let language = "";
+  interface Props {
+    language?: string;
+    value?: string;
+  }
+
+  let { language = $bindable(""), value = $bindable("") }: Props = $props();
 
   let editorElement: HTMLDivElement;
   let editor: monaco.editor.IStandaloneCodeEditor;
@@ -22,7 +26,7 @@
     editor.setModel(model);
   };
 
-  onMount(async () => {
+  onMount(() => {
     self.MonacoEnvironment = {
       getWorker: function (_: any, label: string) {
         if (label === "json") return new jsonWorker();
@@ -45,17 +49,17 @@
     loadCode(value, language);
   });
 
-  $: {
-    if (language && model) loadCode(model.getValue(), language);
-  }
-
   onDestroy(() => {
     monaco?.editor.getModels().forEach((model) => model.dispose());
     editor?.dispose();
+  });
+
+  $effect(() => {
+    if (language && model) loadCode(model.getValue(), language);
   });
 </script>
 
 <div
   class="h-96 border border-white/20 rounded overflow-hidden selectable"
   bind:this={editorElement}
-/>
+></div>

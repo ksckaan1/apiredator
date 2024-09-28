@@ -2,8 +2,8 @@
   import { slide, fade } from "svelte/transition";
   import { goto } from "$app/navigation";
   import logo from "$assets/logo.svg";
-  import { onMount } from "svelte";
-  onMount(() => {
+
+  $effect(() => {
     setTimeout(() => {
       goto("/new-request", {
         replaceState: true,

@@ -1,15 +1,26 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
   import Section from "$components/ui/Section.svelte";
   import NumberInput from "$components/ui/NumberInput.svelte";
   import SegmentedSelect from "$components/ui/SegmentedSelect.svelte";
   import DurationSelector from "$components/ui/DurationSelector.svelte";
 
-  export let activeTestType = "count";
-  export let numberOfRequestsValue = 1;
-  export let numberOfClientsValue = 1;
-  export let testDuration = "";
-  export let requestTimeout = "";
+  interface Props {
+    activeTestType?: string;
+    numberOfRequestsValue?: number;
+    numberOfClientsValue?: number;
+    testDuration?: string;
+    requestTimeout?: string;
+    keepAlive?: boolean;
+  }
+
+  let {
+    activeTestType = $bindable("count"),
+    numberOfRequestsValue = $bindable(1),
+    numberOfClientsValue = $bindable(1),
+    testDuration = $bindable(""),
+    requestTimeout = $bindable(""),
+    keepAlive = $bindable(true),
+  }: Props = $props();
 
   let testTypes = [
     {
@@ -25,27 +36,19 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 w-full mt-5 gap-5">
   <Section title="Test type" subtitle="Which test type you are using?">
-    <div class="w-min">
-      <SegmentedSelect bind:activeItem={activeTestType} items={testTypes} />
-    </div>
+    {#snippet tail()}
+      <div class="w-min">
+        <SegmentedSelect bind:activeItem={activeTestType} items={testTypes} />
+      </div>
+    {/snippet}
   </Section>
   <Section
-    title="Number of Clients"
-    subtitle="How many clients will make requests at the same time?"
-  >
-    <NumberInput bind:value={numberOfClientsValue} min={1} max={100000000000} />
-  </Section>
+    title="Keep Alive"
+    subtitle="Keep-alive reduces latency and network overhead by reusing existing connections."
+    isActive={keepAlive}
+  ></Section>
   <div>
     {#if activeTestType === "count"}
-      <div
-        in:fade={{
-          delay: 200,
-          duration: 200,
-        }}
-        out:fade={{
-          duration: 200,
-        }}
-      >
         <Section
           title="Number of Requests"
           subtitle="How many requests per client?"
@@ -56,17 +59,7 @@
             max={100000000000}
           />
         </Section>
-      </div>
     {:else if activeTestType === "duration"}
-      <div
-        in:fade={{
-          delay: 200,
-          duration: 200,
-        }}
-        out:fade={{
-          duration: 200,
-        }}
-      >
         <Section
           title="Duration"
           subtitle="How long will requests be sent in total?"
@@ -82,9 +75,14 @@
             us or µs (microsecond), ns (nanosecond)
           </div>
         </Section>
-      </div>
     {/if}
   </div>
+  <Section
+    title="Number of Clients"
+    subtitle="How many clients will make requests at the same time?"
+  >
+    <NumberInput bind:value={numberOfClientsValue} min={1} max={100000000000} />
+  </Section>
   <Section
     title="Request Timeout"
     subtitle="What is the maximum timeout for each request?"
