@@ -21,6 +21,7 @@
   import PinButton from "./parts/PinButton.svelte";
   import BookmarkButton from "./parts/BookmarkButton.svelte";
   import TextInput from "$components/ui/TextInput.svelte";
+    import { showToast } from "$stores/toast";
 
   let chartElem: HTMLCanvasElement;
   let ch: Chart;
@@ -249,6 +250,28 @@
       replaceState: true,
     });
   };
+
+  const onAddBookmarkButtonClicked = async () => {
+    await AddToBookmark(bookmarkTitle, bookmarkTags)
+      .then(() => {
+        isBookmarkCreated = true;
+        isBookmarkTitleModalShown = false;
+        bookmarkTitle = "";
+        bookmarkTags = [];
+        bookmarkTag = ""
+
+        showToast({
+          message: "Bookmark created",
+          type: "success",
+        })
+
+        console.log("Bookmark created");
+        
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  }
 </script>
 
 <div
@@ -451,18 +474,7 @@
           class="text-white/70">Cancel</button
         >
         <Button
-          onclick={async () => {
-            await AddToBookmark(bookmarkTitle, bookmarkTags)
-              .then(() => {
-                isBookmarkCreated = true;
-                isBookmarkTitleModalShown = false;
-                bookmarkTitle = "";
-                bookmarkTags = [];
-              })
-              .catch((e) => {
-                console.error(e);
-              });
-          }}
+          onclick={onAddBookmarkButtonClicked}
         >
           <div class="flex gap-1 items-center justify-center w-24">
             <svg
