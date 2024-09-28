@@ -13,6 +13,7 @@
 		"@sveltejs/adapter-static": "^3.0.1",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0-next.6",
+		"@types/lodash": "^4.17.9",
 		"autoprefixer": "^10.4.19",
 		"postcss": "^8.4.38",
 		"svelte": "5.0.0-next.260",
@@ -26,6 +27,7 @@
 	"dependencies": {
 		"@iconify/svelte": "^4.0.2",
 		"chart.js": "^4.4.2",
+		"lodash": "^4.17.21",
 		"monaco-editor": "0.47.0"
 	}
 }

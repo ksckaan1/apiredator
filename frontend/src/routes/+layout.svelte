@@ -1,5 +1,6 @@
 <script lang="ts">
-  import "$lib/style/app.css";
+  import Toast from "$components/Toast.svelte";
+import "$lib/style/app.css";
     import type { Snippet } from "svelte";
 
   interface Props {
@@ -12,3 +13,5 @@
 </script>
 
 {@render children?.()}
+
+<Toast/>
