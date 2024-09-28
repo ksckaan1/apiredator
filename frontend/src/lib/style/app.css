@@ -30,3 +30,8 @@ hr {
 .tile h2 {
   @apply text-lg font-extralight text-primary;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  display: none;
+}

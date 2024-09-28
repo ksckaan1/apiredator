@@ -1,6 +1,11 @@
 <script lang="ts">
-  export let requestMethod = "GET";
-  export let requestURL = "";
+  interface Props {
+    requestMethod?: string;
+    requestURL?: string;
+  }
+
+  let { requestMethod = $bindable("GET"), requestURL = $bindable("") }: Props =
+    $props();
 
   let requestMethods = [
     {

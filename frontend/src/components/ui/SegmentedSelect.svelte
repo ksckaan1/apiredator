@@ -1,31 +1,18 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  export let items: { title: string; value: string }[] = [
-    {
-      title: "None",
-      value: "none",
-    },
-    {
-      title: "Form Data",
-      value: "format-data",
-    },
-    {
-      title: "Raw",
-      value: "raw",
-    },
-    {
-      title: "Binary",
-      value: "binary",
-    },
-  ];
-  export let activeItem = "none";
+  interface Props {
+    items: { title: string; value: string }[];
+    activeItem: string;
+  }
+
+  let { items = $bindable([]), activeItem = $bindable("") }: Props = $props();
 
   let parentElem: HTMLDivElement;
 
-  let indicatorLeft = 0;
-  let indicatorWidth = 0;
-  let isAnimActive = false;
+  let indicatorLeft = $state(0);
+  let indicatorWidth = $state(0);
+  let isAnimActive = $state(false);
 
   const activateItem = (value: string) => {
     const activeItemIndex = items.findIndex((item) => item.value === value);
@@ -39,13 +26,13 @@
       parentElem.querySelectorAll("button")[activeItemIndex].offsetWidth;
   };
 
-  $: {
+  $effect(() => {
     if (activeItem) {
       activateItem(activeItem);
     }
-  }
+  });
 
-  onMount(() => {
+  $effect(() => {
     activateItem(activeItem);
   });
 
@@ -57,7 +44,7 @@
 
 <div
   bind:this={parentElem}
-  class="rounded border border-white/20 font-extralight text-white/40 flex h-10 overflow-hidden relative"
+  class="rounded border border-white/20 bg-accent-bg font-extralight text-white/40 flex h-10 overflow-hidden relative"
 >
   <div
     style="--indicator-left: {indicatorLeft}px; --indicator-width: {indicatorWidth}px"
@@ -68,7 +55,7 @@
     <button
       class:active={item.value === activeItem}
       class="flex-1 z-20 px-4"
-      on:click={() => selectItem(item.value)}
+      onclick={() => selectItem(item.value)}
     >
       {item.title}
     </button>

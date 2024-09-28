@@ -1,12 +1,21 @@
 <script lang="ts">
-  export let value = 0;
-  export let label = "";
-  export let max: number | null = null;
-  export let min: number | null = null;
+  interface Props {
+    value?: number;
+    label?: string;
+    max?: number | null;
+    min?: number | null;
+  }
+
+  let {
+    value = $bindable(0),
+    label = "",
+    max = null,
+    min = null,
+  }: Props = $props();
 
   let inputElem: HTMLInputElement;
 
-  let isValid = true;
+  let isValid = $state(true);
 
   const onInput = () => {
     isValid = false;
@@ -23,7 +32,7 @@
   {#if label}
     <button
       class="flex items-center justify-center mr-3 text-white/60 text-nowrap cursor-text"
-      on:click={() => inputElem.focus()}
+      onclick={() => inputElem.focus()}
     >
       {label}
     </button>
@@ -36,13 +45,13 @@
     bind:this={inputElem}
     bind:value
     class:invalid={!isValid}
-    on:input={onInput}
+    oninput={onInput}
   />
 </div>
 
 <style lang="postcss">
   .wrapper {
-    @apply flex items-center h-10 px-3 border rounded bg-default-bg border-white/20;
+    @apply flex items-center h-10 px-3 border rounded bg-accent-bg border-white/20;
   }
 
   .wrapper:has(input:focus) {

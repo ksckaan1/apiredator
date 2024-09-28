@@ -1,13 +1,20 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
   import Switch from "./Switch.svelte";
+  import type { Snippet } from "svelte";
 
-  export let title: string = "";
-  export let subtitle: string = "";
-  export let isActive: boolean | null = null;
+  interface Props {
+    title?: string;
+    subtitle?: string;
+    isActive?: boolean | null;
+    children?: Snippet;
+    tail?: Snippet;
+  }
+
+  let { title = "", subtitle = "", isActive = null, children, tail }: Props = $props();
 </script>
 
-<div class="" tabindex="-1">
+<div class="bg-default-bg" tabindex="-1">
   <div class="flex items-center justify-between">
     <div>
       <h2 class="text-lg text-bold">{title}</h2>
@@ -18,8 +25,9 @@
     {#if isActive != null}
       <Switch bind:value={isActive} />
     {/if}
+    {@render tail?.()}
   </div>
   {#if isActive == null || isActive == true}
-    <div transition:slide={{ duration: 200 }}><slot /></div>
+    <div transition:slide={{ duration: 200 }}>{@render children?.()}</div>
   {/if}
 </div>

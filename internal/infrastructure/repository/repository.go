@@ -58,10 +58,6 @@ func (r *Repository) GetAllBookmarks(ctx context.Context, searchTerm, tag string
 		count     int64
 	)
 
-	// SELECT bookmarks.id, bookmarks.*
-	// FROM bookmarks, json_each(tags)
-	// WHERE title LIKE "%%"
-	// AND EXISTS (SELECT 1 FROM json_each(tags) WHERE json_each.value = 'custom api') GROUP By bookmarks.id;
 	tx := r.db.WithContext(ctx).
 		Select("bookmarks.id, bookmarks.*").
 		Table("bookmarks, json_each(tags)")
@@ -76,6 +72,7 @@ func (r *Repository) GetAllBookmarks(ctx context.Context, searchTerm, tag string
 
 	err := tx.
 		Group("bookmarks.id").
+		Order("bookmarks.created_at DESC").
 		Count(&count).
 		Offset(offset).
 		Limit(limit).

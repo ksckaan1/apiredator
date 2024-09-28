@@ -1,54 +1,80 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
   import { flip } from "svelte/animate";
   import { fade } from "svelte/transition";
-  export let value: string = "";
-  export let placeholder: string = "";
-  export let label: string = "";
-  export let autoComplete: string[] = [];
-  export let autoFocus = false;
 
-  let filteredAutoComplete = autoComplete;
+  interface Props {
+    value?: string;
+    placeholder?: string;
+    autoComplete?: string[];
+    autoFocus?: boolean;
+    label?: string;
+    head?: Snippet;
+    tail?: Snippet;
+    onkeypress?: (e: KeyboardEvent) => void;
+    variant?: "primary" | "secondary";
+  }
 
-  $: {
+  let {
+    value = $bindable(""),
+    placeholder = "",
+    autoComplete = [],
+    autoFocus = false,
+    label = "",
+    variant = "primary",
+    head,
+    tail,
+    onkeypress,
+  }: Props = $props();
+
+  let filteredAutoComplete = $state(autoComplete);
+
+  $effect(() => {
     if (value != undefined) {
       filteredAutoComplete = autoComplete.filter((ac) =>
         ac.toLowerCase().includes(value.toLowerCase()),
       );
     }
-  }
-  let showAutoCompletes = false;
+  });
+
+  let showAutoCompletes = $state(false);
   let inputElem: HTMLInputElement;
 </script>
 
-<div class="relative">
-  <div class="wrapper">
-    <slot name="head" />
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="relative" class:bg-accent-bg={variant === "primary"}>
+  <div class="wrapper"
+  class:borderless={variant === "secondary"}
+  >
+    {@render head?.()}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     {#if label}
       <div
-        on:click={() => inputElem.focus()}
-        class="flex items-center bg-default-bg justify-center h-full pl-2 text-white/60"
+        onclick={() => inputElem.focus()}
+        class="flex items-center  justify-center h-full pl-2 text-white/60"
       >
         {label}
       </div>
     {/if}
+    <!-- svelte-ignore a11y_autofocus -->
     <input
       bind:this={inputElem}
-      class="flex-1 w-full px-3 py-2 bg-default-bg focus:outline-none"
+      class="flex-1 w-full px-3 py-2 focus:outline-none"
+      class:bg-accent-bg={variant === "primary"}
+      class:bg-transparent={variant === "secondary"}
       type="text"
       autocorrect="off"
       autocapitalize="none"
       autofocus={autoFocus}
-      on:keypress
       {placeholder}
+      onkeypress={onkeypress}
       bind:value
-      on:focus={() => (showAutoCompletes = true)}
-      on:blur={() => {
+      onfocus={() => (showAutoCompletes = true)}
+      onblur={() => {
         setTimeout(() => (showAutoCompletes = false), 100);
       }}
     />
-    <slot name="tail" />
+    {@render tail?.()}
   </div>
   {#if showAutoCompletes && filteredAutoComplete.length > 0}
     <div
@@ -59,7 +85,7 @@
           animate:flip={{ duration: 200 }}
           transition:fade={{ duration: 200 }}
           class="py-2 px-3 hover:bg-white/5 text-left"
-          on:click={() => {
+          onclick={() => {
             value = ac;
             showAutoCompletes = false;
           }}
@@ -73,7 +99,11 @@
 
 <style lang="postcss">
   .wrapper {
-    @apply flex border rounded border-white/20 w-full h-10 overflow-hidden;
+    @apply flex rounded border border-white/20 w-full h-10 overflow-hidden;
+  }
+
+  .wrapper.borderless {
+    @apply border-transparent border-none;
   }
 
   .wrapper:has(input:focus) {

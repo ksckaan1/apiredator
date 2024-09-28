@@ -1,8 +1,12 @@
 <script lang="ts">
   import { SelectFiles } from "$lib/wailsjs/go/service/AppService";
 
-  export let files: string[] = [];
-  export let is_multiple: boolean = true;
+  interface Props {
+    is_multiple?: boolean;
+    files?: string[];
+  }
+
+  let { is_multiple = true, files = $bindable([]) }: Props = $props();
 
   const onSelectFiles = async () => {
     const selectedFiles = await SelectFiles(is_multiple);
@@ -48,7 +52,7 @@
     {/if}
     <button
       class="bg-white/5 rounded border border-white/20 px-3 py-2 my-3 hover:opacity-65"
-      on:click={onSelectFiles}
+      onclick={onSelectFiles}
     >
       Click to Add files
     </button>
@@ -62,7 +66,7 @@
           </span>
           <i
             class="fa-regular fa-trash-can cursor-pointer"
-            on:click={() => removeFile(file)}
+            onclick={() => removeFile(file)}
           ></i>
         </div>
       {/each}

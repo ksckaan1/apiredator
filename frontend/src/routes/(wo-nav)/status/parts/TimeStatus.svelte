@@ -1,7 +1,10 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
-  export let startedAt = "";
-  export let endedAt = "";
+  interface Props {
+    startedAt?: string;
+    endedAt?: string;
+  }
+  let { startedAt = $bindable(""), endedAt = $bindable("") }: Props = $props();
 </script>
 
 <div class="tile">

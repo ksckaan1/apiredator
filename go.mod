@@ -7,7 +7,7 @@ toolchain go1.22.1
 require (
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.8.4
-	github.com/wailsapp/wails/v2 v2.9.2
+	github.com/wailsapp/wails/v2 v2.8.0
 )
 
 require (

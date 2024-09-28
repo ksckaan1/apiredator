@@ -1,8 +1,17 @@
 <script lang="ts">
-  export let latestRPS = 0;
-  export let minRPS = 0;
-  export let avgRPS = 0;
-  export let maxRPS = 0;
+  interface Props {
+    latestRPS?: number;
+    minRPS?: number;
+    avgRPS?: number;
+    maxRPS?: number;
+  }
+
+  let {
+    latestRPS = $bindable(0),
+    minRPS = $bindable(0),
+    avgRPS = $bindable(0),
+    maxRPS = $bindable(0),
+  }: Props = $props();
 </script>
 
 <div class="tile">

@@ -1,11 +1,16 @@
 <script lang="ts">
-  export let value = true;
+  interface Props {
+    value?: boolean;
+  }
+
+  let { value = $bindable(false) }: Props = $props();
 </script>
 
+<!-- svelte-ignore a11y_consider_explicit_label -->
 <button
-  class="relative flex flex-shrink-0 items-center transition-all duration-200 border rounded-full cursor-pointer h-7 w-14 border-white/20"
+  class="relative flex bg-accent-bg flex-shrink-0 items-center transition-all duration-200 border rounded-full cursor-pointer h-7 w-14 border-white/20"
   class:active={value}
-  on:click={() => (value = !value)}
+  onclick={() => (value = !value)}
 >
   <div
     class="absolute transition-all duration-200 rounded-full bg-white/20 size-5 left-1"

@@ -1,8 +1,17 @@
 <script lang="ts">
-  export let testType = "count";
-  export let sentCount = 0;
-  export let numberOfRequests = 0;
-  export let numberOfClients = 0;
+  interface Props {
+    testType?: string;
+    sentCount?: number;
+    numberOfRequests?: number;
+    numberOfClients?: number;
+  }
+
+  let {
+    testType = $bindable("count"),
+    sentCount = $bindable(0),
+    numberOfRequests = $bindable(0),
+    numberOfClients = $bindable(0),
+  }: Props = $props();
 </script>
 
 <div class="tile">

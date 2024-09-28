@@ -4,6 +4,7 @@
   import Chart from "chart.js/auto";
   import {
     AddToBookmark,
+    GetAllTags,
     GetCurrentRequest,
     GetStats,
     ResetCurrentRequest,
@@ -11,7 +12,6 @@
     StopWork,
     WaitWork,
   } from "$lib/wailsjs/go/service/AppService";
-  import { onDestroy, onMount } from "svelte";
   import { goto } from "$app/navigation";
   import Button from "$components/ui/Button.svelte";
   import type { models } from "$lib/wailsjs/go/models";
@@ -26,61 +26,43 @@
   let ch: Chart;
   let stats: any;
 
-  let pageScroll = 0;
-  let isPinned = true;
-  let isBookmarkCreated = false;
-  let isBookmarkTitleModalShown = false;
-  let bookmarkTitle = "";
-  let bookmarkTag = "";
-  let bookmarkTags: string[] = [
-    "job",
-    "custom api",
-    "dyb api",
-    "appman",
-    "test1",
-    "test6",
-    "test7",
-    "test8",
-    "test9",
-    "test10",
-  ];
+  let pageScroll = $state(0);
+  let isPinned = $state(true);
+  let isBookmarkCreated = $state(false);
+  let isBookmarkTitleModalShown = $state(false);
+  let bookmarkTitle = $state("");
+  let bookmarkTag = $state("");
+  let bookmarkTags: string[] = $state([]);
+  let allTags: string[] = $state([]);
 
-  let allTags = [
-    "Example",
-    "Naber",
-    "Nasılsın",
-    "How are you?",
-    "Ne var yu?",
-    "test1",
-    "test6",
-    "test7",
-    "test8",
-    "test9",
-    "test10",
-    "test11",
-    "test12",
-  ];
+  $effect(() => {
+    if (isBookmarkTitleModalShown) {
+      GetAllTags().then((tags) => {
+        allTags = tags;
+      });
+    }
+  });
 
   // request infos
-  let testType = "";
-  let requestMethod = "";
-  let requestURL = "";
-  let numberOfClients = 0;
-  let numberOfRequests = 0;
-  let testDuration = "";
+  let testType = $state("");
+  let requestMethod = $state("");
+  let requestURL = $state("");
+  let numberOfClients = $state(0);
+  let numberOfRequests = $state(0);
+  let testDuration = $state("");
 
   // request statuses
-  let isFinished = false;
-  let sentCount = 0;
-  let passedDuration = "0s";
+  let isFinished = $state(false);
+  let sentCount = $state(0);
+  let passedDuration = $state("0s");
   let rpsValues: number[] = [];
-  let latestRPS: number = 0;
-  let minRPS: number = 0;
-  let avgRPS: number = 0;
-  let maxRPS: number = 0;
-  let statusCodes: any = {};
-  let startedAt = "";
-  let endedAt = "";
+  let latestRPS: number = $state(0);
+  let minRPS: number = $state(0);
+  let avgRPS: number = $state(0);
+  let maxRPS: number = $state(0);
+  let statusCodes: any = $state({});
+  let startedAt = $state("");
+  let endedAt = $state("");
 
   let datasets = [
     {
@@ -123,61 +105,63 @@
     ch.resize();
   };
 
-  onMount(async () => {
-    ch = new Chart(chartElem, {
-      type: "line",
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-          padding: {
-            top: 100,
+  $effect(() => {
+    (async () => {
+      ch = new Chart(chartElem, {
+        type: "line",
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              top: 100,
+            },
+          },
+          scales: {
+            x: {
+              display: false,
+            },
+            y: {
+              display: false,
+            },
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              enabled: false,
+            },
           },
         },
-        scales: {
-          x: {
-            display: false,
-          },
-          y: {
-            display: false,
-          },
+        data: {
+          labels: [],
+          datasets: datasets,
         },
-        plugins: {
-          legend: {
-            display: false,
-          },
-          tooltip: {
-            enabled: false,
-          },
-        },
-      },
-      data: {
-        labels: [],
-        datasets: datasets,
-      },
-    });
+      });
 
-    var gradient = chartElem
-      .getContext("2d")!
-      .createLinearGradient(0, 0, 0, chartElem.height);
+      var gradient = chartElem
+        .getContext("2d")!
+        .createLinearGradient(0, 0, 0, chartElem.height);
 
-    gradient.addColorStop(0, "rgba(225, 175, 75, .6)");
-    gradient.addColorStop(1, "rgb(13, 15, 24)");
+      gradient.addColorStop(0, "rgba(225, 175, 75, .6)");
+      gradient.addColorStop(1, "rgb(13, 15, 24)");
 
-    ch.data.datasets[0].backgroundColor = gradient;
-    ch.update();
+      ch.data.datasets[0].backgroundColor = gradient;
+      ch.update();
 
-    window.addEventListener("resize", resizeEvent);
+      window.addEventListener("resize", resizeEvent);
 
-    let cr = await GetCurrentRequest();
-    if (cr) {
-      setCurrentRequest(cr);
-    }
-    getStats();
-  });
+      let cr = await GetCurrentRequest();
+      if (cr) {
+        setCurrentRequest(cr);
+      }
+      getStats();
+    })();
 
-  onDestroy(() => {
-    window.removeEventListener("resize", resizeEvent);
+    return () => {
+      window.removeEventListener("resize", resizeEvent);
+    };
   });
 
   const setCurrentRequest = (cr: models.Data) => {
@@ -279,7 +263,7 @@
         class="flex items-center justify-between"
       >
         <button
-          on:click={onBackButtonClicked}
+          onclick={onBackButtonClicked}
           class="bg-accent-bg rounded px-5 py-2 border border-white/20"
         >
           &larr; Back to request
@@ -287,7 +271,7 @@
         <div class="flex items-center gap-3">
           {#if !isFinished}
             <button
-              on:click={onStopBtnClicked}
+              onclick={onStopBtnClicked}
               class="bg-red-900 rounded px-5 py-2 border border-white/20"
             >
               Stop
@@ -295,17 +279,17 @@
           {:else}
             <BookmarkButton
               isActive={isBookmarkCreated}
-              on:click={onBookmarkButtonClicked}
+              onclick={onBookmarkButtonClicked}
             />
             <button
-              on:click={onRetryButtonClicked}
+              onclick={onRetryButtonClicked}
               class="bg-green-900 rounded px-5 py-2 border border-white/20"
             >
               <i class="fa-solid fa-rotate-right"></i>
               Retry
             </button>
           {/if}
-          <Button on:click={onNewRequestButtonClicked}>New Request</Button>
+          <Button onclick={onNewRequestButtonClicked}>New Request</Button>
         </div>
       </div>
     </div>
@@ -321,7 +305,7 @@
 
   <div
     class="w-full relative z-50 flex-1 overflow-y-auto flex flex-col hide-scrollbar"
-    on:scroll={(e) => {
+    onscroll={(e: any) => {
       pageScroll = e.target.scrollTop || 0;
     }}
   >
@@ -412,11 +396,14 @@
 </div>
 
 {#if isBookmarkTitleModalShown}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="fixed top-0 left-0 w-full h-full bg-black/50 z-50 flex items-start justify-center"
-    on:click|self={() => (isBookmarkTitleModalShown = false)}
+    onclick={(e) => {
+      if (e.target !== e.currentTarget) return;
+      isBookmarkTitleModalShown = false;
+    }}
   >
     <div
       class="bg-accent-bg border border-white/20 rounded p-5 mt-20 w-full max-w-xl"
@@ -429,7 +416,7 @@
             <button
               animate:flip={{ duration: 200 }}
               transition:fade={{ duration: 200 }}
-              on:click={() => removeTag(tag)}
+              onclick={() => removeTag(tag)}
               class="bg-primary text-on-primary px-2 py-1 rounded"
             >
               {tag}
@@ -443,7 +430,7 @@
         label="Add Tag"
         autoComplete={allTags}
         bind:value={bookmarkTag}
-        on:keypress={(e) => {
+        onkeypress={(e) => {
           if (
             e.key === "Enter" &&
             !bookmarkTags.includes(bookmarkTag) &&
@@ -456,7 +443,7 @@
       />
       <div class="flex justify-end gap-3 items-center mt-5">
         <button
-          on:click={() => {
+          onclick={() => {
             isBookmarkTitleModalShown = false;
             bookmarkTitle = "";
             bookmarkTags = [];
@@ -464,7 +451,7 @@
           class="text-white/70">Cancel</button
         >
         <Button
-          on:click={async () => {
+          onclick={async () => {
             await AddToBookmark(bookmarkTitle, bookmarkTags)
               .then(() => {
                 isBookmarkCreated = true;
@@ -496,11 +483,6 @@
 {/if}
 
 <style>
-  .hide-scrollbar::-webkit-scrollbar {
-    width: 0px;
-    display: none;
-  }
-
   .content-side {
     background: linear-gradient(
       to bottom,

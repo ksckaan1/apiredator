@@ -1,35 +1,24 @@
 <script lang="ts">
   import type { FormData } from "$types/custom";
   import DropdownSelect from "./DropdownSelect.svelte";
-  import EditableInput from "./EditableInput.svelte";
+  import TextInput from "./TextInput.svelte";
   import FileSelector from "./FileSelector.svelte";
   import Switch from "./Switch.svelte";
 
-  export let rows: FormData[] = [
-    {
-      key: "file",
-      text_value: "",
-      file_value: ["abc.jpg", "def.jpg"],
-      row_type: "file",
-      is_active: true,
-    },
-    {
-      key: "text",
-      text_value: "value",
-      file_value: [],
-      row_type: "text",
-      is_active: true,
-    },
-  ];
+  interface Props {
+    rows?: FormData[];
+  }
+
+  let { rows = $bindable([]) }: Props = $props();
 
   const deleteRow = (i: number) => {
     rows = rows.filter((_, index) => i !== index);
   };
 
-  let newKey = "";
-  let newTextValue: string = "";
-  let newFileValue: string[] = [];
-  let newRowType: "text" | "file" = "text";
+  let newKey = $state("");
+  let newTextValue: string = $state("");
+  let newFileValue: string[] = $state([]);
+  let newRowType: "text" | "file" = $state("text");
 
   const addRow = () => {
     if (newKey.trim() == "") return;
@@ -63,7 +52,7 @@
       class="rw grid w-full grid-cols-[8rem,1fr,7rem,1fr,3rem] border-b px-3 border-white/20 items-center"
     >
       <Switch bind:value={row.is_active} />
-      <EditableInput bind:value={row.key} />
+      <TextInput bind:value={row.key} />
       <div class="px-4">
         <DropdownSelect
           bind:value={row.row_type}
@@ -82,9 +71,9 @@
       {#if row.row_type === "file"}
         <FileSelector bind:files={row.file_value} />
       {:else}
-        <EditableInput bind:value={row.text_value} />
+        <TextInput bind:value={row.text_value} />
       {/if}
-      <button on:click={() => deleteRow(i)}>
+      <button onclick={() => deleteRow(i)}>
         <i class="fa-regular fa-trash-can"></i>
       </button>
     </div>
@@ -128,7 +117,7 @@
     {:else}
       <FileSelector bind:files={newFileValue} />
     {/if}
-    <button on:click={addRow}>
+    <button onclick={addRow}>
       <i class="fa-solid fa-plus"></i>
     </button>
   </div>

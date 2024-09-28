@@ -62,7 +62,7 @@ export namespace models {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice && a.map) {
+		    if (a.slice) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -75,18 +75,6 @@ export namespace models {
 		    }
 		    return a;
 		}
-	}
-	export class ResponseInfo {
-	    Durations: number[];
-	
-	    static createFrom(source: any = {}) {
-	        return new ResponseInfo(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.Durations = source["Durations"];
-	    }
 	}
 	export class RPS {
 	    list: number[];
@@ -117,7 +105,6 @@ export namespace models {
 	    // Go type: time
 	    ended_at: any;
 	    passed_duration: string;
-	    ResponseInfo?: ResponseInfo;
 	
 	    static createFrom(source: any = {}) {
 	        return new Stat(source);
@@ -131,14 +118,13 @@ export namespace models {
 	        this.started_at = this.convertValues(source["started_at"], null);
 	        this.ended_at = this.convertValues(source["ended_at"], null);
 	        this.passed_duration = source["passed_duration"];
-	        this.ResponseInfo = this.convertValues(source["ResponseInfo"], ResponseInfo);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice && a.map) {
+		    if (a.slice) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -196,7 +182,7 @@ export namespace models {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice && a.map) {
+		    if (a.slice) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -239,7 +225,7 @@ export namespace models {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice && a.map) {
+		    if (a.slice) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -275,7 +261,7 @@ export namespace models {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice && a.map) {
+		    if (a.slice) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -307,7 +293,7 @@ export namespace models {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice && a.map) {
+		    if (a.slice) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -321,7 +307,6 @@ export namespace models {
 		    return a;
 		}
 	}
-	
 	
 	
 	

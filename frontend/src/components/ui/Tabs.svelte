@@ -1,29 +1,35 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  export let tabs: any[] = [
-    {
-      title: "Options",
-      value: "options",
-    },
-    {
-      title: "Header",
-      value: "header",
-    },
-    {
-      title: "Body",
-      value: "body",
-    },
-  ];
+  interface Props {
+    tabs?: any[];
+    value?: string;
+  }
 
-  export let value: string = "";
+  let {
+    tabs = [
+      {
+        title: "Options",
+        value: "options",
+      },
+      {
+        title: "Header",
+        value: "header",
+      },
+      {
+        title: "Body",
+        value: "body",
+      },
+    ],
+    value = $bindable(""),
+  }: Props = $props();
 
   let wrapper: HTMLDivElement;
 
-  let indicatorLeft = 0;
-  let indicatorWidth = 0;
+  let indicatorLeft = $state(0);
+  let indicatorWidth = $state(0);
 
-  onMount(() => {
+  $effect(() => {
     if (value) {
       const [left, width] = getTabOffset(value);
       indicatorLeft = left;
@@ -60,7 +66,7 @@
   {#each tabs as tab}
     <button
       class="px-4 py-2 hover:bg-white/5"
-      on:click={() => onTabClicked(tab.value)}
+      onclick={() => onTabClicked(tab.value)}
     >
       {tab.title}
     </button>

@@ -1,8 +1,13 @@
-<script>
-  export let isActive = false;
+<script lang="ts">
+  interface Props {
+    isActive?: boolean;
+    onclick?: (e: MouseEvent) => void;
+  }
+
+  let { isActive = false, onclick }: Props = $props();
 </script>
 
-<button on:click>
+<button {onclick}>
   {#if isActive}
     <svg
       xmlns="http://www.w3.org/2000/svg"

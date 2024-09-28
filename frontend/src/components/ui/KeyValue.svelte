@@ -1,9 +1,13 @@
 <script lang="ts">
   import type { KeyValueData } from "$types/custom";
-  import EditableInput from "./EditableInput.svelte";
+  import TextInput from "./TextInput.svelte";
   import Switch from "./Switch.svelte";
 
-  export let rows: KeyValueData[] = [];
+  interface Props {
+    rows?: KeyValueData[];
+  }
+
+  let { rows = $bindable([]) }: Props = $props();
 
   const deleteRow = (i: number) => {
     rows = rows.filter((_, index) => i !== index);
@@ -12,8 +16,8 @@
   let keyInput: HTMLInputElement;
   let valueInput: HTMLInputElement;
 
-  let newKey = "";
-  let newValue = "";
+  let newKey = $state("");
+  let newValue = $state("");
 
   const onKeyInput = (e: any) => {
     if (e.key !== "Enter") return;
@@ -72,9 +76,10 @@
       class="rw grid w-full grid-cols-[8rem,1fr,1fr,3rem] border-b px-3 border-white/20 items-center"
     >
       <Switch bind:value={row.is_active} />
-      <EditableInput bind:value={row.key} />
-      <EditableInput bind:value={row.value} previewVars />
-      <button on:click={() => deleteRow(i)}>
+      <TextInput bind:value={row.key} variant="secondary" />
+      <TextInput bind:value={row.value} variant="secondary" />
+      <!-- svelte-ignore a11y_consider_explicit_label -->
+      <button onclick={() => deleteRow(i)}>
         <i class="fa-regular fa-trash-can"></i>
       </button>
     </div>
@@ -91,7 +96,7 @@
       class="h-10 bg-transparent placeholder:text-white/20 border border-transparent rounded px-3 focus:outline-none focus:border-primary"
       type="text"
       placeholder="key"
-      on:keydown={onKeyInput}
+      onkeydown={onKeyInput}
     />
     <input
       bind:this={valueInput}
@@ -101,7 +106,7 @@
       class="h-10 bg-transparent placeholder:text-white/20 border border-transparent rounded px-3 focus:outline-none focus:border-primary"
       type="text"
       placeholder="value"
-      on:keydown={onValueInput}
+      onkeydown={onValueInput}
     />
     <span></span>
   </div>

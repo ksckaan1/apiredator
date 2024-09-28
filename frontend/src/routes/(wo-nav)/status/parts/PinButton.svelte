@@ -1,15 +1,18 @@
-<script>
-  export let isPinned = true;
+<script lang="ts">
+  interface Props {
+    isPinned?: boolean;
+  }
+
+  let { isPinned = $bindable(true) }: Props = $props();
 </script>
 
-<button on:click={() => (isPinned = !isPinned)}>
+<button onclick={() => (isPinned = !isPinned)}>
   {#if isPinned}
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="2rem"
       height="2rem"
       viewBox="0 0 24 24"
-      {...$$props}
     >
       <path
         fill="currentColor"
@@ -22,7 +25,6 @@
       width="2rem"
       height="2rem"
       viewBox="0 0 24 24"
-      {...$$props}
     >
       <path
         fill="currentColor"
