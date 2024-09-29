@@ -59,15 +59,18 @@ func (r *Repository) GetAllBookmarks(ctx context.Context, searchTerm, tag string
 	)
 
 	tx := r.db.WithContext(ctx).
-		Select("bookmarks.id, bookmarks.*").
-		Table("bookmarks, json_each(tags)")
+		Select("bookmarks.id, bookmarks.*")
+
+	if strings.TrimSpace(tag) != "" {
+		tx = tx.
+			Table("bookmarks, json_each(tags)").
+			Where("EXISTS (SELECT 1 FROM json_each(tags) WHERE json_each.value = ?)", tag)
+	} else {
+		tx = tx.Table("bookmarks")
+	}
 
 	if strings.TrimSpace(searchTerm) != "" {
 		tx = tx.Where("title LIKE ?", "%"+searchTerm+"%")
-	}
-
-	if strings.TrimSpace(tag) != "" {
-		tx = tx.Where("EXISTS (SELECT 1 FROM json_each(tags) WHERE json_each.value = ?)", tag)
 	}
 
 	err := tx.
@@ -115,4 +118,16 @@ func (r *Repository) GetAllTags(ctx context.Context) ([]string, error) {
 	return lo.Map(results, func(t struct{ Tag string }, _ int) string {
 		return t.Tag
 	}), nil
+}
+
+func (r *Repository) DeleteBookmark(ctx context.Context, id string) error {
+	err := r.db.WithContext(ctx).
+		Model(&Bookmark{}).
+		Where("id = ?", id).
+		Delete(&Bookmark{}).Error
+	if err != nil {
+		return fmt.Errorf("db: delete: %w", err)
+	}
+
+	return nil
 }

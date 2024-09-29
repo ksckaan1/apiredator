@@ -1,8 +1,9 @@
 <script lang="ts">
+  import Icon from "@iconify/svelte";
   import { onMount } from "svelte";
 
   interface Props {
-    items: { title: string; value: string }[];
+    items: { title: string; value: string; icon?: string }[];
     activeItem: string;
   }
 
@@ -54,10 +55,15 @@
   {#each items as item}
     <button
       class:active={item.value === activeItem}
-      class="flex-1 z-20 px-4"
+      class="flex-1 z-20 px-4 flex gap-x-2 items-center"
       onclick={() => selectItem(item.value)}
     >
-      {item.title}
+      {#if item.icon}
+        <Icon icon={item.icon} width="24" />
+      {/if}
+      <span>
+        {item.title}
+      </span>
     </button>
   {/each}
 </div>

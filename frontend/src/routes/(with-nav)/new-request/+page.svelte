@@ -156,7 +156,7 @@
   <div class="w-full grid grid-cols-[8rem,1fr,7rem] gap-x-2">
     <DropdownSelect items={requestMethods} bind:value={activeRequestMethod} />
     <UrlInput bind:value={urlValue} label="URL"></UrlInput>
-    <Button onclick={onSendBtnClicked}>Send</Button>
+    <Button onclick={onSendBtnClicked} icon="la:flag-checkered">Start</Button>
   </div>
   <hr class="my-3" />
   <Tabs bind:value={activeTab} />

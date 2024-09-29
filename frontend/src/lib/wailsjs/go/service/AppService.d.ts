@@ -4,6 +4,8 @@ import {models} from '../models';
 
 export function AddToBookmark(arg1:string,arg2:Array<string>):Promise<void>;
 
+export function DeleteBookmarks(arg1:Array<string>):Promise<void>;
+
 export function GetAllBookmarks(arg1:string,arg2:string,arg3:number,arg4:number):Promise<models.BookmarkList>;
 
 export function GetAllTags():Promise<Array<string>>;

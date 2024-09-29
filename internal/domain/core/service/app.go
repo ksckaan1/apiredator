@@ -195,3 +195,16 @@ func (a *AppService) GetAllTags() ([]string, error) {
 	}
 	return tags, nil
 }
+
+func (a *AppService) DeleteBookmarks(ids []string) error {
+	for i := range ids {
+		err := a.repository.DeleteBookmark(a.ctx, ids[i])
+		if err != nil {
+			return fmt.Errorf("repository: delete bookmark: %w", err)
+		}
+	}
+	a.logger.Info("bookmarks deleted",
+		"ids", ids,
+	)
+	return nil
+}

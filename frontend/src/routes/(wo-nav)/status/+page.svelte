@@ -4,7 +4,6 @@
   import Chart from "chart.js/auto";
   import {
     AddToBookmark,
-    GetAllTags,
     GetCurrentRequest,
     GetStats,
     ResetCurrentRequest,
@@ -19,9 +18,8 @@
   import StatusTiles from "./parts/StatusTiles.svelte";
   import UrlInfo from "./parts/URLInfo.svelte";
   import PinButton from "./parts/PinButton.svelte";
-  import BookmarkButton from "./parts/BookmarkButton.svelte";
-  import TextInput from "$components/ui/TextInput.svelte";
-    import { showToast } from "$stores/toast";
+  import { showToast } from "$stores/toast";
+    import AddBookmarkModal from "./parts/AddBookmarkModal.svelte";
 
   let chartElem: HTMLCanvasElement;
   let ch: Chart;
@@ -29,20 +27,7 @@
 
   let pageScroll = $state(0);
   let isPinned = $state(true);
-  let isBookmarkCreated = $state(false);
-  let isBookmarkTitleModalShown = $state(false);
-  let bookmarkTitle = $state("");
-  let bookmarkTag = $state("");
-  let bookmarkTags: string[] = $state([]);
-  let allTags: string[] = $state([]);
-
-  $effect(() => {
-    if (isBookmarkTitleModalShown) {
-      GetAllTags().then((tags) => {
-        allTags = tags;
-      });
-    }
-  });
+  let showAddBookmarkModal = $state(false);
 
   // request infos
   let testType = $state("");
@@ -77,10 +62,6 @@
       tension: 0.5,
     },
   ];
-
-  const removeTag = (tag: string) => {
-    bookmarkTags = bookmarkTags.filter((t) => t !== tag);
-  };
 
   const getStats = async () => {
     let interval = setInterval(async () => {
@@ -206,7 +187,6 @@
   };
 
   const resetStatuses = () => {
-    isBookmarkCreated = false;
     sentCount = 0;
     passedDuration = "0s";
     rpsValues = [];
@@ -235,12 +215,6 @@
     getStats();
   };
 
-  const onBookmarkButtonClicked = async () => {
-    if (!isBookmarkCreated) {
-      isBookmarkTitleModalShown = true;
-    }
-  };
-
   const onNewRequestButtonClicked = async () => {
     if (!isFinished) {
       await StopWork();
@@ -251,26 +225,24 @@
     });
   };
 
-  const onAddBookmarkButtonClicked = async () => {
+  const addBookmark = async (bookmarkTitle: string, bookmarkTags: string[]) => {
     await AddToBookmark(bookmarkTitle, bookmarkTags)
       .then(() => {
-        isBookmarkCreated = true;
-        isBookmarkTitleModalShown = false;
-        bookmarkTitle = "";
-        bookmarkTags = [];
-        bookmarkTag = ""
-
         showToast({
           message: "Bookmark created",
           type: "success",
-        })
-
-        console.log("Bookmark created");
-        
+        })        
       })
-      .catch((e) => {
-        console.error(e);
+      .catch((e: Error) => {
+        showToast({
+          message: e.message,
+          type: "error",
+        }) 
       });
+  }
+
+  const onBookmarkButtonClicked = async () => {
+    showAddBookmarkModal = true;
   }
 </script>
 
@@ -285,34 +257,40 @@
         in:fly={{ delay: 200, duration: 300, y: -50 }}
         class="flex items-center justify-between"
       >
-        <button
+        <Button
+          variant="secondary"
           onclick={onBackButtonClicked}
-          class="bg-accent-bg rounded px-5 py-2 border border-white/20"
+          icon="ic:outline-arrow-back"
         >
-          &larr; Back to request
-        </button>
+          Back to Request
+        </Button>
         <div class="flex items-center gap-3">
           {#if !isFinished}
-            <button
+            <Button
+            variant="danger"
+              icon="carbon:stop-outline"
               onclick={onStopBtnClicked}
-              class="bg-red-900 rounded px-5 py-2 border border-white/20"
             >
               Stop
-            </button>
+            </Button>
           {:else}
-            <BookmarkButton
-              isActive={isBookmarkCreated}
+            <Button
+              variant="transparent"
+              icon="bi:bookmark-plus"
               onclick={onBookmarkButtonClicked}
             />
-            <button
-              onclick={onRetryButtonClicked}
-              class="bg-green-900 rounded px-5 py-2 border border-white/20"
+            <Button
+            icon="ic:round-refresh"
+            variant="success"
+            onclick={onRetryButtonClicked}
             >
-              <i class="fa-solid fa-rotate-right"></i>
               Retry
-            </button>
+            </Button>
           {/if}
-          <Button onclick={onNewRequestButtonClicked}>New Request</Button>
+          <Button 
+          onclick={onNewRequestButtonClicked} 
+          icon="mdi:globe-plus"
+          >New Request</Button>
         </div>
       </div>
     </div>
@@ -418,83 +396,13 @@
   </div>
 </div>
 
-{#if isBookmarkTitleModalShown}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="fixed top-0 left-0 w-full h-full bg-black/50 z-50 flex items-start justify-center"
-    onclick={(e) => {
-      if (e.target !== e.currentTarget) return;
-      isBookmarkTitleModalShown = false;
-    }}
-  >
-    <div
-      class="bg-accent-bg border border-white/20 rounded p-5 mt-20 w-full max-w-xl"
-    >
-      <h2 class="text-2xl mb-2">Save Bookmark</h2>
-      <TextInput label="Insert Title" bind:value={bookmarkTitle} />
-      {#if bookmarkTags.length > 0}
-        <div class="flex flex-wrap gap-2 py-5">
-          {#each bookmarkTags as tag (tag)}
-            <button
-              animate:flip={{ duration: 200 }}
-              transition:fade={{ duration: 200 }}
-              onclick={() => removeTag(tag)}
-              class="bg-primary text-on-primary px-2 py-1 rounded"
-            >
-              {tag}
-            </button>
-          {/each}
-        </div>
-      {:else}
-        <div class="py-6">No tags added</div>
-      {/if}
-      <TextInput
-        label="Add Tag"
-        autoComplete={allTags}
-        bind:value={bookmarkTag}
-        onkeypress={(e) => {
-          if (
-            e.key === "Enter" &&
-            !bookmarkTags.includes(bookmarkTag) &&
-            bookmarkTag.trim() != ""
-          ) {
-            bookmarkTags = [...bookmarkTags, bookmarkTag];
-            bookmarkTag = "";
-          }
-        }}
-      />
-      <div class="flex justify-end gap-3 items-center mt-5">
-        <button
-          onclick={() => {
-            isBookmarkTitleModalShown = false;
-            bookmarkTitle = "";
-            bookmarkTags = [];
-          }}
-          class="text-white/70">Cancel</button
-        >
-        <Button
-          onclick={onAddBookmarkButtonClicked}
-        >
-          <div class="flex gap-1 items-center justify-center w-24">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="1.5rem"
-              ><path
-                fill="currentColor"
-                d="M11 13H6q-.425 0-.712-.288T5 12t.288-.712T6 11h5V6q0-.425.288-.712T12 5t.713.288T13 6v5h5q.425 0 .713.288T19 12t-.288.713T18 13h-5v5q0 .425-.288.713T12 19t-.712-.288T11 18z"
-              /></svg
-            >
-            <span>Add</span>
-          </div></Button
-        >
-      </div>
-    </div>
-  </div>
-{/if}
 
-<style>
+<AddBookmarkModal
+  showModal={showAddBookmarkModal}
+  {addBookmark}
+/>
+
+<style lang="postcss">
   .content-side {
     background: linear-gradient(
       to bottom,
