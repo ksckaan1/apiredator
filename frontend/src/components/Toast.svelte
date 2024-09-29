@@ -13,7 +13,7 @@
       class:bg-green-900={toast.type === "success"}
       class:bg-yellow-900={toast.type === "warning"}
       class:bg-blue-900={toast.type === "info"}
-      animate:flip
+      animate:flip={{ duration: 200 }}
       in:fly={{ duration: 200, y: 100 }}
       out:fly={{ duration: 200, x: 400 }}
     >
