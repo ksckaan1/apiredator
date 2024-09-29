@@ -13,6 +13,7 @@
   import { showToast } from "$stores/toast";
   import DeleteBookmarksModal from "./parts/DeleteBookmarksModal.svelte";
   import Button from "$components/ui/Button.svelte";
+  import { goto } from "$app/navigation";
 
   let bookmarks: models.Bookmark[] = $state([]);
   let bookmarkCount = $state(0);
@@ -131,6 +132,10 @@
         makeSearch();
       });
   };
+
+  const onClickBookmark = (id: string) => {
+    goto(`/inspect?id=${id}`);
+  };
 </script>
 
 <div class="h-[calc(100vh-40px)] flex flex-col">
@@ -176,10 +181,13 @@
             </div>
           {/if}
           {#each bookmarks as bookmark (bookmark.id)}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
               animate:flip={{ duration: 200 }}
               transition:fade={{ duration: 200 }}
               class="flex border overflow-hidden bg-accent-bg border-white/20 rounded flex-shrink-0 hover:bg-white/5 cursor-pointer group"
+              onclick={() => onClickBookmark(bookmark.id)}
             >
               <div
                 class={`${
@@ -209,7 +217,8 @@
                   {#if bookmark.tags && bookmark.tags.length > 0}
                     {#each bookmark.tags as tag}
                       <button
-                        onclick={() => {
+                        onclick={(e) => {
+                          e.stopPropagation();
                           tagValue = tag;
                         }}
                         class="text-white/50 transition-colors duration-200 hover:text-primary"
@@ -229,8 +238,14 @@
                   id={bookmark.id}
                   value={bookmark.id}
                   class="hidden"
+                  onclick={(e) => e.stopPropagation()}
                 />
-                <label for={bookmark.id} class="cursor-pointer">
+                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                <label
+                  for={bookmark.id}
+                  class="cursor-pointer"
+                  onclick={(e) => e.stopPropagation()}
+                >
                   {#if selectedBookmarks.includes(bookmark.id)}
                     <Icon icon="bxs:checkbox" width="40" class="text-primary" />
                   {:else}
