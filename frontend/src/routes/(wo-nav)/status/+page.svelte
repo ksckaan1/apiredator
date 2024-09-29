@@ -19,7 +19,7 @@
   import UrlInfo from "./parts/URLInfo.svelte";
   import PinButton from "./parts/PinButton.svelte";
   import { showToast } from "$stores/toast";
-    import AddBookmarkModal from "./parts/AddBookmarkModal.svelte";
+  import AddBookmarkModal from "./parts/AddBookmarkModal.svelte";
 
   let chartElem: HTMLCanvasElement;
   let ch: Chart;
