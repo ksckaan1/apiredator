@@ -59,8 +59,15 @@ func (r *Repository) GetAllBookmarks(ctx context.Context, searchTerm, tag string
 	)
 
 	tx := r.db.WithContext(ctx).
-		Select("bookmarks.id, bookmarks.*").
-		Table("bookmarks, json_each(tags)")
+		Select("bookmarks.id, bookmarks.*")
+
+	if strings.TrimSpace(tag) != "" {
+		tx = tx.
+			Table("bookmarks, json_each(tags)").
+			Where("EXISTS (SELECT 1 FROM json_each(tags) WHERE json_each.value = ?)", tag)
+	} else {
+		tx = tx.Table("bookmarks")
+	}
 
 	if strings.TrimSpace(searchTerm) != "" {
 		tx = tx.Where("title LIKE ?", "%"+searchTerm+"%")
