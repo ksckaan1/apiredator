@@ -5,7 +5,9 @@
   import Icon from "@iconify/svelte";
 </script>
 
-<div class="fixed bottom-0 right-0 w-[40rem] p-5 z-50 flex flex-col gap-y-5">
+<div
+  class="fixed bottom-0 right-0 w-[40rem] p-5 z-50 flex flex-col gap-y-5 pointer-events-none"
+>
   {#each $toastStore.list as toast, index (index)}
     <div
       class="rounded p-5 pl-3 border border-white/20 flex flex-row items-start gap-x-2 flex-shrink-0 bg-opacity-30 backdrop-blur-sm"
