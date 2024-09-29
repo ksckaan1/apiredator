@@ -6,6 +6,10 @@ export function AddToBookmark(arg1, arg2) {
   return window['go']['service']['AppService']['AddToBookmark'](arg1, arg2);
 }
 
+export function DeleteBookmarks(arg1) {
+  return window['go']['service']['AppService']['DeleteBookmarks'](arg1);
+}
+
 export function GetAllBookmarks(arg1, arg2, arg3, arg4) {
   return window['go']['service']['AppService']['GetAllBookmarks'](arg1, arg2, arg3, arg4);
 }

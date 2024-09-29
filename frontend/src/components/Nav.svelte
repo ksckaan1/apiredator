@@ -24,7 +24,7 @@
     {
       id: "new-request",
       title: "New Request",
-      icon: "ph:globe",
+      icon: "mdi:globe",
       rgx: /\/new\-request/,
     },
     {

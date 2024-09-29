@@ -26,16 +26,18 @@
     {
       title: "Count",
       value: "count",
+      icon: "mdi:counter"
     },
     {
       title: "Duration",
       value: "duration",
+      icon: "gg:sand-clock"
     },
   ];
 </script>
 
 <div class="grid grid-cols-1 md:grid-cols-2 w-full mt-5 gap-5">
-  <Section title="Test type" subtitle="Which test type you are using?">
+  <Section title="Test Type" subtitle="Which test type you are using?">
     {#snippet tail()}
       <div class="w-min">
         <SegmentedSelect bind:activeItem={activeTestType} items={testTypes} />
