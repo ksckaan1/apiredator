@@ -3,7 +3,7 @@
     import type { Snippet } from "svelte";
 
   interface Props {
-    variant?: "primary" | "secondary" | "danger" | "transparent" | "outlined" | "success";
+    variant?: "primary" | "secondary" | "danger" | "transparent" | "outlined" | "outlined-danger" | "success";
     onclick?: (e: MouseEvent) => void;
     icon?: string;
     iconSize?: number;
@@ -19,6 +19,7 @@
   class:success={variant === "success"}
   class:danger={variant === "danger"}
   class:outlined={variant === "outlined"}
+  class:outlined-danger={variant === "outlined-danger"}
   class:transparent={variant === "transparent"}
   {onclick}
 >
@@ -47,6 +48,10 @@
 
   .outlined{
     @apply bg-transparent text-white/70 hover:text-primary border border-white/20 hover:border-primary;
+  }
+
+  .outlined-danger{
+    @apply bg-transparent text-white/70 hover:text-red-700 border border-white/20 hover:border-red-700;
   }
 
   .transparent {
