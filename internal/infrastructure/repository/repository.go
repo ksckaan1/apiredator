@@ -52,6 +52,26 @@ func (r *Repository) CreateBookmark(ctx context.Context, d *models.Bookmark) (st
 	return id, nil
 }
 
+func (r *Repository) GetBookmarkByID(ctx context.Context, id string) (*models.Bookmark, error) {
+	var bookmark Bookmark
+	err := r.db.WithContext(ctx).
+		Table("bookmarks").
+		Where("id = ?", id).
+		First(&bookmark).Error
+	if err != nil {
+		return nil, fmt.Errorf("db: first: %w", err)
+	}
+	return &models.Bookmark{
+		ID:       id,
+		CreateAt: bookmark.CreatedAt,
+		Title:    bookmark.Title,
+		Request:  bookmark.Request.Data(),
+		Options:  bookmark.Options.Data(),
+		Stat:     bookmark.Stat.Data(),
+		Tags:     bookmark.Tags,
+	}, nil
+}
+
 func (r *Repository) GetAllBookmarks(ctx context.Context, searchTerm, tag string, limit int, offset int) (*models.BookmarkList, error) {
 	var (
 		bookmarks []Bookmark

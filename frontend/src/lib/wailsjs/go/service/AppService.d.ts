@@ -10,6 +10,8 @@ export function GetAllBookmarks(arg1:string,arg2:string,arg3:number,arg4:number)
 
 export function GetAllTags():Promise<Array<string>>;
 
+export function GetBookmarkByID(arg1:string):Promise<models.Bookmark>;
+
 export function GetCurrentRequest():Promise<models.Data>;
 
 export function GetStats():Promise<models.Stat>;

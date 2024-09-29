@@ -18,6 +18,10 @@ export function GetAllTags() {
   return window['go']['service']['AppService']['GetAllTags']();
 }
 
+export function GetBookmarkByID(arg1) {
+  return window['go']['service']['AppService']['GetBookmarkByID'](arg1);
+}
+
 export function GetCurrentRequest() {
   return window['go']['service']['AppService']['GetCurrentRequest']();
 }

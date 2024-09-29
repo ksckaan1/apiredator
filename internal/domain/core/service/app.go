@@ -174,6 +174,19 @@ func (a *AppService) AddToBookmark(title string, tags []string) error {
 	return nil
 }
 
+func (a *AppService) GetBookmarkByID(id string) (*models.Bookmark, error) {
+	result, err := a.repository.GetBookmarkByID(a.ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("repository: get bookmark by id: %w", err)
+	}
+
+	a.logger.Info("bookmark fetched",
+		"id", id,
+	)
+
+	return result, nil
+}
+
 func (a *AppService) GetAllBookmarks(searchTerm, tag string, limit int, offset int) (*models.BookmarkList, error) {
 	result, err := a.repository.GetAllBookmarks(a.ctx, searchTerm, tag, limit, offset)
 	if err != nil {
