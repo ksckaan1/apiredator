@@ -3,12 +3,16 @@
   import TextInput from "$components/ui/TextInput.svelte";
   import type { models } from "$lib/wailsjs/go/models";
   import { flip } from "svelte/animate";
-  import { fade, slide } from "svelte/transition";
+  import { fade, fly, slide } from "svelte/transition";
   import {
+    DeleteBookmarks,
     GetAllBookmarks,
     GetAllTags,
   } from "$lib/wailsjs/go/service/AppService";
   import Icon from "@iconify/svelte";
+  import { showToast } from "$stores/toast";
+  import DeleteBookmarksModal from "./parts/DeleteBookmarksModal.svelte";
+  import Button from "$components/ui/Button.svelte";
 
   let bookmarks: models.Bookmark[] = $state([]);
   let bookmarkCount = $state(0);
@@ -18,6 +22,8 @@
 
   let bouncedSearchValue = $state("");
   let selectedBookmarks: string[] = $state([]);
+
+  let showDeleteBookmarkModal = $state(false);
 
   let timer: number;
 
@@ -95,13 +101,43 @@
       color: "bg-emerald-700",
     },
   ];
+
+  const onDeselectAllButtonClicked = () => {
+    selectedBookmarks = [];
+  };
+
+  const onDeleteBookmarksButtonClicked = () => {
+    showDeleteBookmarkModal = true;
+  };
+
+  const deleteBookmarks = () => {
+    DeleteBookmarks(selectedBookmarks)
+      .then(() => {
+        showToast({
+          type: "success",
+          message: `${selectedBookmarks.length} bookmark(s) deleted`,
+        });
+        selectedBookmarks = [];
+        showDeleteBookmarkModal = false;
+        makeSearch();
+      })
+      .catch((e: Error) => {
+        showToast({
+          type: "error",
+          message: e.message,
+        });
+        selectedBookmarks = [];
+        showDeleteBookmarkModal = false;
+        makeSearch();
+      });
+  };
 </script>
 
 <div class="h-[calc(100vh-40px)] flex flex-col">
   <div class="flex-1 hide-scrollbar overflow-y-auto flex flex-col px-5 pt-5">
     <div class="mx-auto w-full max-w-7xl flex flex-col gap-4">
       <h1 class="text-3xl">Bookmarks</h1>
-      <div class="flex gap-2">
+      <div class="flex gap-4">
         <div class="flex-1">
           <TextInput bind:value={searchValue} label="Search" autoFocus />
         </div>
@@ -111,7 +147,7 @@
       </div>
       {#if bookmarks && bookmarks.length > 0}
         <div
-          class="flex flex-col pb-5 pr-1 gap-4 h-[calc(100vh-10.625rem)] hide-scrollbar overflow-y-scroll"
+          class="flex flex-col pb-5 pr-[1px] gap-4 h-[calc(100vh-10.625rem)] hide-scrollbar overflow-y-scroll"
         >
           {#if selectedBookmarks.length > 0}
             <div
@@ -121,25 +157,21 @@
               <span>
                 {selectedBookmarks.length} bookmark(s) selected
               </span>
-              <div class="flex items-start gap-5">
-                <button
-                  onclick={() => {
-                    selectedBookmarks = [];
-                  }}
-                  class="flex gap-1"
+              <div class="flex items-start gap-4">
+                <Button
+                  onclick={onDeselectAllButtonClicked}
+                  variant="outlined"
+                  icon="bx:checkbox"
                 >
-                  <Icon icon="bx:checkbox" width="24" />
-                  <span> Deselect All </span>
-                </button>
-                <button
-                  onclick={() => {
-                    selectedBookmarks = [];
-                  }}
-                  class="flex gap-1"
+                  Deselect All
+                </Button>
+                <Button
+                  onclick={onDeleteBookmarksButtonClicked}
+                  variant="outlined"
+                  icon="ph:trash"
                 >
-                  <Icon icon="ph:trash" width="24" />
-                  <span> Delete Selected Ones </span>
-                </button>
+                  Delete Selected Ones
+                </Button>
               </div>
             </div>
           {/if}
@@ -147,7 +179,7 @@
             <div
               animate:flip={{ duration: 200 }}
               transition:fade={{ duration: 200 }}
-              class="flex border overflow-hidden bg-accent-bg border-white/20 rounded flex-shrink-0 hover:bg-white/5 cursor-pointer"
+              class="flex border overflow-hidden bg-accent-bg border-white/20 rounded flex-shrink-0 hover:bg-white/5 cursor-pointer group"
             >
               <div
                 class={`${
@@ -169,21 +201,26 @@
                     {bookmark.request.url}
                   </div>
                 </div>
-                {#if bookmark.tags && bookmark.tags.length > 0}
-                  <div class="mt-1 flex flex-wrap gap-3 items-center">
-                    <Icon icon="mdi:tags" class="text-white/50" />
+                <div class="mt-2 text-white/30 font-light">
+                  {new Date(bookmark.create_at).toString()}
+                </div>
+                <div class="mt-1 flex flex-wrap gap-3 items-center">
+                  <Icon icon="mdi:tags" class="text-white/50" />
+                  {#if bookmark.tags && bookmark.tags.length > 0}
                     {#each bookmark.tags as tag}
                       <button
                         onclick={() => {
                           tagValue = tag;
                         }}
-                        class=" text-white/50 transition-colors duration-200 hover:text-primary"
+                        class="text-white/50 transition-colors duration-200 hover:text-primary"
                       >
                         #{tag}
                       </button>
                     {/each}
-                  </div>
-                {/if}
+                  {:else}
+                    <div class="text-white/50">No Tag</div>
+                  {/if}
+                </div>
               </div>
               <div class="flex flex-col justify-center pr-3 flex-shrink-0">
                 <input
@@ -197,14 +234,30 @@
                   {#if selectedBookmarks.includes(bookmark.id)}
                     <Icon icon="bxs:checkbox" width="40" class="text-primary" />
                   {:else}
-                    <Icon icon="bx:checkbox" width="40" class="text-white/30" />
+                    <Icon
+                      icon="bx:checkbox"
+                      width="40"
+                      class="text-white/30 opacity-0 group-hover:opacity-100"
+                    />
                   {/if}
                 </label>
               </div>
             </div>
           {/each}
         </div>
+      {:else}
+        <div
+          class="text-center flex flex-col justify-center items-center text-white/50"
+        >
+          There is no bookmark added!
+        </div>
       {/if}
     </div>
   </div>
 </div>
+
+<DeleteBookmarksModal
+  bind:showModal={showDeleteBookmarkModal}
+  {selectedBookmarks}
+  {deleteBookmarks}
+/>
