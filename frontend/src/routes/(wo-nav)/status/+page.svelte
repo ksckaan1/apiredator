@@ -20,7 +20,7 @@
   import PinButton from "./parts/PinButton.svelte";
   import { showToast } from "$stores/toast";
   import AddBookmarkModal from "./parts/AddBookmarkModal.svelte";
-    import ChartView from "$components/ui/ChartView.svelte";
+  import ChartView from "$components/ui/ChartView.svelte";
 
   let chartElem: HTMLCanvasElement;
   let ch: Chart;
