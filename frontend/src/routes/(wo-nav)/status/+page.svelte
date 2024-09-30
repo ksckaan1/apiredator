@@ -20,6 +20,7 @@
   import PinButton from "./parts/PinButton.svelte";
   import { showToast } from "$stores/toast";
   import AddBookmarkModal from "./parts/AddBookmarkModal.svelte";
+    import ChartView from "$components/ui/ChartView.svelte";
 
   let chartElem: HTMLCanvasElement;
   let ch: Chart;
@@ -38,10 +39,10 @@
   let testDuration = $state("");
 
   // request statuses
+  let chartData: number[] = $state([]);
   let isFinished = $state(false);
   let sentCount = $state(0);
   let passedDuration = $state("0s");
-  let rpsValues: number[] = [];
   let latestRPS: number = $state(0);
   let minRPS: number = $state(0);
   let avgRPS: number = $state(0);
@@ -49,19 +50,6 @@
   let statusCodes: any = $state({});
   let startedAt = $state("");
   let endedAt = $state("");
-
-  let datasets = [
-    {
-      label: "Request per second",
-      data: [],
-      fill: true,
-      borderColor: "rgb(225, 175, 75)",
-      borderWidth: 0,
-      pointRadius: 0,
-      pointBorderWidth: 0,
-      tension: 0.5,
-    },
-  ];
 
   const getStats = async () => {
     let interval = setInterval(async () => {
@@ -75,75 +63,14 @@
     isFinished = true;
   };
 
-  const resizeEvent = () => {
-    var gradient = chartElem
-      .getContext("2d")!
-      .createLinearGradient(0, 0, 0, chartElem.height);
-
-    gradient.addColorStop(0, "rgba(225, 175, 75, .6)");
-    gradient.addColorStop(1, "rgb(13, 15, 24)");
-
-    ch.data.datasets[0].backgroundColor = gradient;
-    ch.resize();
-  };
-
   $effect(() => {
     (async () => {
-      ch = new Chart(chartElem, {
-        type: "line",
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: {
-              top: 100,
-            },
-          },
-          scales: {
-            x: {
-              display: false,
-            },
-            y: {
-              display: false,
-            },
-          },
-          plugins: {
-            legend: {
-              display: false,
-            },
-            tooltip: {
-              enabled: false,
-            },
-          },
-        },
-        data: {
-          labels: [],
-          datasets: datasets,
-        },
-      });
-
-      var gradient = chartElem
-        .getContext("2d")!
-        .createLinearGradient(0, 0, 0, chartElem.height);
-
-      gradient.addColorStop(0, "rgba(225, 175, 75, .6)");
-      gradient.addColorStop(1, "rgb(13, 15, 24)");
-
-      ch.data.datasets[0].backgroundColor = gradient;
-      ch.update();
-
-      window.addEventListener("resize", resizeEvent);
-
-      let cr = await GetCurrentRequest();
+            let cr = await GetCurrentRequest();
       if (cr) {
         setCurrentRequest(cr);
       }
       getStats();
     })();
-
-    return () => {
-      window.removeEventListener("resize", resizeEvent);
-    };
   });
 
   const setCurrentRequest = (cr: models.Data) => {
@@ -156,12 +83,8 @@
   };
 
   const updateStats = (st: models.Stat) => {
+    chartData = st.rps.list;
     sentCount = st.sent_count;
-    let rps = st.rps.list;
-    rpsValues = rps;
-    ch.data.datasets[0].data = rpsValues;
-    ch.data.labels = rps.map((r) => "");
-    ch.update();
     latestRPS = st.rps.latest;
     minRPS = st.rps.min;
     avgRPS = Number(st.rps.avg.toFixed(2));
@@ -187,9 +110,9 @@
   };
 
   const resetStatuses = () => {
+    chartData = [];
     sentCount = 0;
     passedDuration = "0s";
-    rpsValues = [];
     latestRPS = 0;
     minRPS = 0;
     avgRPS = 0;
@@ -197,9 +120,6 @@
     statusCodes = {};
     startedAt = "";
     endedAt = "";
-    ch.data.datasets[0].data = [];
-    ch.data.labels = [];
-    ch.update();
   };
 
   const onRetryButtonClicked = async () => {
@@ -209,10 +129,7 @@
     if (cr) {
       setCurrentRequest(cr);
     }
-    rpsValues = [];
-    ch.data.labels = [];
-    isFinished = false;
-    getStats();
+    chartData = [];
   };
 
   const onNewRequestButtonClicked = async () => {
@@ -301,11 +218,13 @@
     class="w-screen fixed top-24 h-80"
     style="--wails-draggable:drag"
   >
-    <canvas class="w-screen bg-default-bg" bind:this={chartElem}></canvas>
+    {#if chartData.length > 0}
+      <ChartView data={chartData} />
+    {/if}
   </div>
 
   <div
-    class="w-full relative z-50 flex-1 overflow-y-auto flex flex-col hide-scrollbar"
+    class="pointer-events-none w-full relative z-50 flex-1 overflow-y-auto flex flex-col hide-scrollbar"
     onscroll={(e: any) => {
       pageScroll = e.target.scrollTop || 0;
     }}
@@ -313,7 +232,7 @@
     <div class="w-full">
       <div class="h-80" style="--wails-draggable:drag"></div>
       <div
-        class="w-full top-0 content-side"
+        class="w-full top-0 content-side pointer-events-auto"
         class:content-side-solid={pageScroll > 320}
         class:sticky={isPinned}
         class:static={!isPinned}
@@ -342,7 +261,7 @@
           />
         </div>
       </div>
-      <div class="w-screen bg-default-bg">
+      <div class="w-screen bg-default-bg pointer-events-auto">
         <div class="max-w-7xl mx-auto w-full flex-shrink-0 px-5">
           <p>asdasd</p>
           <p>asdasd</p>
