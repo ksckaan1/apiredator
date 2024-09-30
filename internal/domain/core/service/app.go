@@ -41,13 +41,16 @@ func (a *AppService) SetCurrentRequest(data models.Data) error {
 		if err != nil {
 			return fmt.Errorf("time: parse duration: %w", err)
 		}
+
 		reqTimeout = v
 	}
 
 	a.currentWork = work.New(a.logger, &data, reqTimeout)
+
 	a.logger.Info("set current request",
 		"data", data,
 	)
+
 	return nil
 }
 
@@ -56,10 +59,13 @@ func (a *AppService) GetCurrentRequest() (*models.Data, error) {
 		a.logger.Error("current work not found")
 		return nil, nil
 	}
+
 	data := a.currentWork.GetDetails()
+
 	a.logger.Info("get current work",
 		"data", data,
 	)
+
 	return data, nil
 }
 
@@ -76,6 +82,7 @@ func (a *AppService) StartCurrentRequest() error {
 		)
 		return fmt.Errorf("start work: %w", err)
 	}
+
 	a.logger.Info("current request started")
 
 	return nil
@@ -103,6 +110,7 @@ func (a *AppService) SelectFiles(isMultiple bool) []string {
 	if err != nil {
 		return nil
 	}
+
 	return []string{file}
 }
 
@@ -110,7 +118,9 @@ func (a *AppService) GetStats() (*models.Stat, error) {
 	if a.currentWork == nil {
 		return nil, errors.New("no work started")
 	}
+
 	stats := a.currentWork.GetStats()
+
 	return &stats, nil
 }
 
@@ -142,6 +152,7 @@ func (a *AppService) WaitWork() error {
 	a.logger.Info("waiting for current work")
 	a.currentWork.Wait()
 	a.logger.Info("finished current work")
+
 	return nil
 }
 
@@ -196,6 +207,8 @@ func (a *AppService) GetAllBookmarks(searchTerm, tag string, limit int, offset i
 	a.logger.Info("all bookmarks fetched",
 		"limit", limit,
 		"offset", offset,
+		"tag", tag,
+		"search_term", searchTerm,
 	)
 
 	return result, nil
@@ -206,7 +219,23 @@ func (a *AppService) GetAllTags() ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("repository: get all tags: %w", err)
 	}
+
+	a.logger.Info("all tags fetched")
+
 	return tags, nil
+}
+
+func (a *AppService) UpdateBookmark(d *models.UpdateBookmark) error {
+	err := a.repository.UpdateBookmark(a.ctx, d)
+	if err != nil {
+		return fmt.Errorf("repository: update bookmark: %w", err)
+	}
+
+	a.logger.Info("bookmark updated",
+		"id", d.ID,
+	)
+
+	return nil
 }
 
 func (a *AppService) DeleteBookmarks(ids []string) error {
@@ -216,8 +245,10 @@ func (a *AppService) DeleteBookmarks(ids []string) error {
 			return fmt.Errorf("repository: delete bookmark: %w", err)
 		}
 	}
+
 	a.logger.Info("bookmarks deleted",
 		"ids", ids,
 	)
+
 	return nil
 }

@@ -28,4 +28,6 @@ export function StartCurrentRequest():Promise<void>;
 
 export function StopWork():Promise<void>;
 
+export function UpdateBookmark(arg1:models.UpdateBookmark):Promise<void>;
+
 export function WaitWork():Promise<void>;

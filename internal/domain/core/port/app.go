@@ -18,13 +18,15 @@ type AppService interface {
 	GetBookmarkByID(id string) (*models.Bookmark, error)
 	GetAllBookmarks(searchTerm, tag string, limit, offset int) (*models.BookmarkList, error)
 	GetAllTags() ([]string, error)
+	UpdateBookmark(d *models.UpdateBookmark) error
 	DeleteBookmarks(ids []string) error
 }
 
 type Repository interface {
 	CreateBookmark(ctx context.Context, d *models.Bookmark) (string, error)
-	GetBookmarkByID(ctx context.Context,id string) (*models.Bookmark, error)
+	GetBookmarkByID(ctx context.Context, id string) (*models.Bookmark, error)
 	GetAllBookmarks(ctx context.Context, searchTerm, tag string, limit, offset int) (*models.BookmarkList, error)
 	GetAllTags(ctx context.Context) ([]string, error)
+	UpdateBookmark(ctx context.Context, d *models.UpdateBookmark) error
 	DeleteBookmark(ctx context.Context, id string) error
 }

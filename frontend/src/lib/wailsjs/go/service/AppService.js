@@ -54,6 +54,10 @@ export function StopWork() {
   return window['go']['service']['AppService']['StopWork']();
 }
 
+export function UpdateBookmark(arg1) {
+  return window['go']['service']['AppService']['UpdateBookmark'](arg1);
+}
+
 export function WaitWork() {
   return window['go']['service']['AppService']['WaitWork']();
 }

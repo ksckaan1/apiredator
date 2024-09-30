@@ -7,113 +7,33 @@
   import StatusTiles from "../status/parts/StatusTiles.svelte";
   import { Chart } from "chart.js/auto";
   import { goto } from "$app/navigation";
-  import { DeleteBookmarks, GetBookmarkByID, SetCurrentRequest, StartCurrentRequest } from "$lib/wailsjs/go/service/AppService";
+  import { DeleteBookmarks, GetBookmarkByID, SetCurrentRequest, StartCurrentRequest, UpdateBookmark } from "$lib/wailsjs/go/service/AppService";
   import { prettyTime } from "$utils/time";
   import Icon from "@iconify/svelte";
   import { showToast } from "$stores/toast";
   import DeleteBookmarkModal from "./parts/DeleteBookmarkModal.svelte";
+  import EditBookmarkModal from "./parts/EditBookmarkModal.svelte";
+  import ChartView from "$components/ui/ChartView.svelte";
 
   const usp = new URLSearchParams(window.location.search);
   const bookmarkID: string = usp.get("id") ?? "";
 
   let showDeleteModal = $state(false);
+  let showEditModal = $state(false);
 
-  let bookmarkData: models.Bookmark | null = $state(null);
-
-  let chartElem: HTMLCanvasElement;
-  let ch: Chart;
+  let bookmarkData: models.Bookmark | null = $state(null);
 
   let pageScroll = $state(0);
   let isPinned = $state(true);
+  let chartData: number[] = $state([]);
 
-  let datasets = [
-    {
-      label: "Request per second",
-      data: [],
-      fill: true,
-      borderColor: "rgb(225, 175, 75)",
-      borderWidth: 0,
-      pointRadius: 0,
-      pointBorderWidth: 0,
-      tension: 0.5,
-    },
-  ];
-
-  const resizeEvent = () => {
-    var gradient = chartElem
-      .getContext("2d")!
-      .createLinearGradient(0, 0, 0, chartElem.height);
-
-    gradient.addColorStop(0, "rgba(225, 175, 75, .6)");
-    gradient.addColorStop(1, "rgb(13, 15, 24)");
-
-    ch.data.datasets[0].backgroundColor = gradient;
-    ch.resize();
-  };
 
   $effect(() => {
-    (async () => {
-      ch = new Chart(chartElem, {
-        type: "line",
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: {
-            padding: {
-              top: 100,
-            },
-          },
-          scales: {
-            x: {
-              display: false,
-            },
-            y: {
-              display: false,
-            },
-          },
-          plugins: {
-            legend: {
-              display: false,
-            },
-            tooltip: {
-              enabled: false,
-            },
-          },
-        },
-        data: {
-          labels: [],
-          datasets: datasets,
-        },
-      });
-
-      var gradient = chartElem
-        .getContext("2d")!
-        .createLinearGradient(0, 0, 0, chartElem.height);
-
-      gradient.addColorStop(0, "rgba(225, 175, 75, .6)");
-      gradient.addColorStop(1, "rgb(13, 15, 24)");
-
-      ch.data.datasets[0].backgroundColor = gradient;
-      ch.update();
-
-      window.addEventListener("resize", resizeEvent);
-
-      GetBookmarkByID(bookmarkID).then((result) => {
-        bookmarkData = result
-        setChartData(result);
-      });
-    })();
-
-    return () => {
-      window.removeEventListener("resize", resizeEvent);
-    };
-  });
-
-  const setChartData = (b: models.Bookmark) => {
-    ch.data.datasets[0].data = b.stat.rps.list;
-    ch.data.labels = ch.data.datasets[0].data.map((r) => "");
-    ch.update();
-  }
+    GetBookmarkByID(bookmarkID).then((result) => {
+      bookmarkData = result
+      chartData = [...result.stat.rps.list]
+    });
+  })
 
   const onBackButtonClicked = ()=>{
     goto('/bookmarks')
@@ -173,6 +93,32 @@
       })
     })
   }
+
+  const onEditButtonClicked = ()=>{
+    showEditModal = true
+  }
+
+  const editBookmark = (title: string, tags: string[]) => {
+    UpdateBookmark(new models.UpdateBookmark({
+      id: bookmarkID,
+      title: title,
+      tags: tags
+    })).then(()=>{
+      showEditModal = false
+      bookmarkData!.title=title
+      bookmarkData!.tags=tags
+      showToast({
+        message: "Bookmark updated",
+        type: "success"
+      })
+    }).catch((e: Error)=>{
+      showEditModal = false
+      showToast({
+        message: e.message,
+        type: "error"
+      })
+    })
+  }
 </script>
 
 
@@ -216,12 +162,14 @@
     class="w-screen fixed top-24 h-80"
     style="--wails-draggable:drag"
   >
-    <canvas class="w-screen bg-default-bg" bind:this={chartElem}></canvas>
+    {#if chartData.length > 0}
+      <ChartView data={chartData} />
+    {/if}
   </div>
 
 {#if bookmarkData != null}
   <div
-    class="w-full relative z-50 flex-1 overflow-y-auto flex flex-col hide-scrollbar"
+    class="pointer-events-none w-full relative z-50 flex-1 overflow-y-auto flex flex-col hide-scrollbar"
     onscroll={(e: any) => {
       pageScroll = e.target.scrollTop || 0;
     }}
@@ -229,7 +177,7 @@
     <div class="w-full">
       <div class="h-80" style="--wails-draggable:drag"></div>
       <div
-        class="w-full top-0 content-side"
+        class="w-full top-0 content-side pointer-events-auto"
         class:content-side-solid={pageScroll > 320}
         class:sticky={isPinned}
         class:static={!isPinned}
@@ -260,7 +208,8 @@
               <div class=" flex gap-x-2 items-start">
                 <Button
                   variant="outlined"
-                    icon="ic:outline-edit"
+                  icon="ic:outline-edit"
+                  onclick={onEditButtonClicked}
                 >
                   Edit
                 </Button>
@@ -295,8 +244,13 @@
           />
         </div>
       </div>
-      <div class="w-screen bg-default-bg">
+      <div class="w-screen bg-default-bg pointer-events-auto">
         <div class="max-w-7xl mx-auto w-full flex-shrink-0 px-5">
+          <button
+          onclick={()=> chartData.push(Math.ceil(Math.random() * 100))}
+          >
+            add
+          </button>
           <p>asdasd</p>
           <p>asdasd</p>
           <p>asdasd</p>
@@ -354,6 +308,13 @@
   bind:showModal={showDeleteModal}
   selectedBookmark={bookmarkID}
   {deleteBookmark}
+/>
+
+<EditBookmarkModal
+  showModal={showEditModal}
+  bookmarkTitle={bookmarkData?.title ?? ""}
+  bookmarkTags={bookmarkData?.tags ?? []}
+  editBookmark={editBookmark}
 />
 
 <style lang="postcss">

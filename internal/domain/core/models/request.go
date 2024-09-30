@@ -12,6 +12,12 @@ type Bookmark struct {
 	Tags     []string  `json:"tags"`
 }
 
+type UpdateBookmark struct {
+	ID    string   `json:"id"`
+	Title string   `json:"title"`
+	Tags  []string `json:"tags"`
+}
+
 type BookmarkList struct {
 	Bookmarks []Bookmark `json:"bookmarks"`
 	Limit     int        `json:"limit"`

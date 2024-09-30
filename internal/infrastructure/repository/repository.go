@@ -140,6 +140,20 @@ func (r *Repository) GetAllTags(ctx context.Context) ([]string, error) {
 	}), nil
 }
 
+func (r *Repository) UpdateBookmark(ctx context.Context, d *models.UpdateBookmark) error {
+	err := r.db.WithContext(ctx).
+		Model(&Bookmark{}).
+		Where("id = ?", d.ID).
+		UpdateColumns(map[string]any{
+			"title": d.Title,
+			"tags":  datatypes.NewJSONSlice(d.Tags),
+		}).Error
+	if err != nil {
+		return fmt.Errorf("update columns: %w", err)
+	}
+	return nil
+}
+
 func (r *Repository) DeleteBookmark(ctx context.Context, id string) error {
 	err := r.db.WithContext(ctx).
 		Model(&Bookmark{}).
