@@ -3,7 +3,7 @@ module github.com/ksckaan1/apiredator
 go 1.25
 
 require (
-	github.com/rs/zerolog v1.34.0
+	github.com/ksckaan1/logger v0.1.2
 	github.com/stretchr/testify v1.10.0
 	github.com/wailsapp/wails/v2 v2.10.2
 )
@@ -17,8 +17,8 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/ksckaan1/logger v0.1.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/rs/zerolog v1.34.0 // indirect
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
