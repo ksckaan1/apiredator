@@ -70,7 +70,7 @@ func (w *Work) Start(ctx context.Context) error {
 		return fmt.Errorf("run: %w", err)
 	}
 
-	w.logger.Info("work started")
+	w.logger.Info(w.ctx, "work started")
 
 	return nil
 }
@@ -109,7 +109,7 @@ func (w *Work) run() error {
 		for i := range w.data.Options.NumberOfClients {
 			wg.Add(1)
 			go func() {
-				w.logger.Debug("client started",
+				w.logger.Debug(w.ctx, "client started",
 					"num", i,
 				)
 				if w.data.Options.TestType == models.TTDuration {
@@ -119,7 +119,7 @@ func (w *Work) run() error {
 							if errors.Is(err, ErrStopWork) || errors.Is(err, context.DeadlineExceeded) {
 								break
 							}
-							w.logger.Error("error when making request",
+							w.logger.Error(w.ctx, "error when making request",
 								"error", err.Error(),
 							)
 						}
@@ -134,13 +134,13 @@ func (w *Work) run() error {
 							if errors.Is(err, ErrStopWork) || errors.Is(err, context.DeadlineExceeded) {
 								break
 							}
-							w.logger.Error("error when making request",
+							w.logger.Error(w.ctx, "error when making request",
 								"error", err.Error(),
 							)
 						}
 					}
 				}
-				w.logger.Debug("client finished",
+				w.logger.Debug(w.ctx, "client finished",
 					"num", i,
 				)
 				wg.Done()

@@ -8,7 +8,7 @@ import (
 	"runtime"
 
 	"github.com/ksckaan1/apiredator/cmd/gui/app"
-	"github.com/ksckaan1/apiredator/pkg/logger"
+	"github.com/ksckaan1/logger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -17,13 +17,17 @@ import (
 var assets embed.FS
 
 func main() {
-	lg := logger.NewZerolog().
-		WithWriter(os.Stdout).
-		WithLevel(logger.TraceLevel).
-		WithTime().
-		WithLayer("apiredator")
-
 	ctx := context.Background()
+
+	lg, err := logger.New(&logger.Config{
+		ServiceName:  "apiredator",
+		Output:       []logger.Output{logger.OutputStdout},
+		StdoutFormat: logger.FormatLogfmt,
+		Level:        logger.LevelTrace,
+	})
+	if err != nil {
+		panic(err)
+	}
 
 	db, err := gorm.Open(sqlite.Open(getDBFilePath()), &gorm.Config{})
 	if err != nil {
@@ -34,14 +38,14 @@ func main() {
 
 	err = a.Init(ctx)
 	if err != nil {
-		lg.Fatal("error when app init",
+		lg.Fatal(ctx, "error when app init",
 			"error", err,
 		)
 	}
 
 	err = a.Run(ctx)
 	if err != nil {
-		lg.Fatal("error when app run",
+		lg.Fatal(ctx, "error when app run",
 			"error", err,
 		)
 	}

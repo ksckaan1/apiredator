@@ -4,19 +4,18 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"testing"
 	"time"
 
+	"github.com/ksckaan1/logger"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ksckaan1/apiredator/internal/domain/core/models"
-	"github.com/ksckaan1/apiredator/pkg/logger"
 )
 
 func TestStartWork(t *testing.T) {
-	lg := logger.NewZerolog().
-		WithWriter(os.Stdout)
+	lg, err := logger.New(logger.DefaultConfig())
+	require.NoError(t, err)
 
 	w := New(
 		lg,
@@ -39,7 +38,7 @@ func TestStartWork(t *testing.T) {
 
 	ctx := context.Background()
 
-	err := w.Start(ctx)
+	err = w.Start(ctx)
 	require.NoError(t, err)
 	go func() {
 		ticker := time.NewTicker(time.Second)

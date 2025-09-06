@@ -47,7 +47,7 @@ func (a *AppService) SetCurrentRequest(data models.Data) error {
 
 	a.currentWork = work.New(a.logger, &data, reqTimeout)
 
-	a.logger.Info("set current request",
+	a.logger.Info(a.ctx, "set current request",
 		"data", data,
 	)
 
@@ -56,13 +56,13 @@ func (a *AppService) SetCurrentRequest(data models.Data) error {
 
 func (a *AppService) GetCurrentRequest() (*models.Data, error) {
 	if a.currentWork == nil {
-		a.logger.Error("current work not found")
+		a.logger.Error(a.ctx, "current work not found")
 		return nil, nil
 	}
 
 	data := a.currentWork.GetDetails()
 
-	a.logger.Info("get current work",
+	a.logger.Info(a.ctx, "get current work",
 		"data", data,
 	)
 
@@ -71,19 +71,19 @@ func (a *AppService) GetCurrentRequest() (*models.Data, error) {
 
 func (a *AppService) StartCurrentRequest() error {
 	if a.currentWork == nil {
-		a.logger.Error("current request not found")
+		a.logger.Error(a.ctx, "current request not found")
 		return errors.New("current work is not set")
 	}
 
 	err := a.currentWork.Start(context.Background())
 	if err != nil {
-		a.logger.Error("current request can not started",
+		a.logger.Error(a.ctx, "current request can not started",
 			"error", err,
 		)
 		return fmt.Errorf("start work: %w", err)
 	}
 
-	a.logger.Info("current request started")
+	a.logger.Info(a.ctx, "current request started")
 
 	return nil
 }
@@ -134,7 +134,7 @@ func (a *AppService) StopWork() error {
 	}
 
 	a.currentWork.Stop()
-	a.logger.Info("current work stopped")
+	a.logger.Info(a.ctx, "current work stopped")
 
 	return nil
 }
@@ -145,13 +145,13 @@ func (a *AppService) IsWorkActive() bool {
 
 func (a *AppService) WaitWork() error {
 	if a.currentWork == nil {
-		a.logger.Error("current work not found")
+		a.logger.Error(a.ctx, "current work not found")
 		return errors.New("current work not found")
 	}
 
-	a.logger.Info("waiting for current work")
+	a.logger.Info(a.ctx, "waiting for current work")
 	a.currentWork.Wait()
-	a.logger.Info("finished current work")
+	a.logger.Info(a.ctx, "finished current work")
 
 	return nil
 }
@@ -178,7 +178,7 @@ func (a *AppService) AddToBookmark(title string, tags []string) error {
 		return fmt.Errorf("repository: create bookmark: %w", err)
 	}
 
-	a.logger.Info("bookmark created",
+	a.logger.Info(a.ctx, "bookmark created",
 		"id", id,
 	)
 
@@ -191,7 +191,7 @@ func (a *AppService) GetBookmarkByID(id string) (*models.Bookmark, error) {
 		return nil, fmt.Errorf("repository: get bookmark by id: %w", err)
 	}
 
-	a.logger.Info("bookmark fetched",
+	a.logger.Info(a.ctx, "bookmark fetched",
 		"id", id,
 	)
 
@@ -204,7 +204,7 @@ func (a *AppService) GetAllBookmarks(searchTerm, tag string, limit int, offset i
 		return nil, fmt.Errorf("repository: get all bookmarks: %w", err)
 	}
 
-	a.logger.Info("all bookmarks fetched",
+	a.logger.Info(a.ctx, "all bookmarks fetched",
 		"limit", limit,
 		"offset", offset,
 		"tag", tag,
@@ -220,7 +220,7 @@ func (a *AppService) GetAllTags() ([]string, error) {
 		return nil, fmt.Errorf("repository: get all tags: %w", err)
 	}
 
-	a.logger.Info("all tags fetched")
+	a.logger.Info(a.ctx, "all tags fetched")
 
 	return tags, nil
 }
@@ -231,7 +231,7 @@ func (a *AppService) UpdateBookmark(d *models.UpdateBookmark) error {
 		return fmt.Errorf("repository: update bookmark: %w", err)
 	}
 
-	a.logger.Info("bookmark updated",
+	a.logger.Info(a.ctx, "bookmark updated",
 		"id", d.ID,
 	)
 
@@ -246,7 +246,7 @@ func (a *AppService) DeleteBookmarks(ids []string) error {
 		}
 	}
 
-	a.logger.Info("bookmarks deleted",
+	a.logger.Info(a.ctx, "bookmarks deleted",
 		"ids", ids,
 	)
 

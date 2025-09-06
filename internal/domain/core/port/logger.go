@@ -1,10 +1,13 @@
 package port
 
+import "context"
+
 type Logger interface {
-	Trace(msg string, keyAndValues ...any)
-	Debug(msg string, keyAndValues ...any)
-	Info(msg string, keyAndValues ...any)
-	Warning(msg string, keyAndValues ...any)
-	Error(msg string, keyAndValues ...any)
-	Fatal(msg string, keyAndValues ...any)
+	Trace(ctx context.Context, message string, fields ...any)
+	Debug(ctx context.Context, message string, fields ...any)
+	Info(ctx context.Context, message string, fields ...any)
+	Warn(ctx context.Context, message string, fields ...any)
+	Error(ctx context.Context, message string, fields ...any)
+	Fatal(ctx context.Context, message string, fields ...any)
+	Panic(ctx context.Context, message string, fields ...any)
 }
