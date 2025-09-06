@@ -12,6 +12,7 @@
 		tagValue: string;
 		selected: boolean;
 		onBookmarkSelected: (selected: boolean) => void;
+		selectMode?: boolean;
 	}
 
 	let {
@@ -20,6 +21,7 @@
 		tagValue = $bindable(""),
 		selected = $bindable(false),
 		onBookmarkSelected,
+		selectMode = false,
 	}: Props = $props();
 </script>
 
@@ -27,7 +29,13 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
 	class="flex border overflow-hidden bg-accent-bg border-white/20 rounded flex-shrink-0 hover:bg-white/5 cursor-pointer group"
-	onclick={() => onClickBookmark(bookmark.id)}
+	onclick={() => {
+		if (selectMode) {
+			onBookmarkSelected(!selected);
+			return;
+		}
+		onClickBookmark(bookmark.id);
+	}}
 >
 	<div
 		style="background-color: {getPrimaryColor(

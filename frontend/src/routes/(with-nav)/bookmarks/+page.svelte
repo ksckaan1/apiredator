@@ -24,6 +24,8 @@
 	let bouncedSearchValue = $state("");
 	let selectedBookmarks: string[] = $state([]);
 
+	let selectMode = $derived(selectedBookmarks.length > 0);
+
 	let showDeleteBookmarkModal = $state(false);
 
 	let timer: number;
@@ -131,6 +133,7 @@
 							selected={selectedBookmarks.includes(bookmark.id)}
 							onBookmarkSelected={(selected) =>
 								onBookmarkSelected(bookmark.id, selected)}
+							{selectMode}
 						/>
 					{/each}
 				</div>
