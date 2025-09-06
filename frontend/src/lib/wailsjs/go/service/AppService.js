@@ -30,6 +30,10 @@ export function GetStats() {
   return window['go']['service']['AppService']['GetStats']();
 }
 
+export function IsCurrentRequestExists() {
+  return window['go']['service']['AppService']['IsCurrentRequestExists']();
+}
+
 export function IsWorkActive() {
   return window['go']['service']['AppService']['IsWorkActive']();
 }

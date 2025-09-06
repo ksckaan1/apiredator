@@ -5,7 +5,7 @@
 
 	$effect(() => {
 		setTimeout(() => {
-			goto("/new-request", {
+			goto("/prepare-request", {
 				replaceState: true,
 			});
 		}, 2000);

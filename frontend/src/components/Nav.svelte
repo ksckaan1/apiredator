@@ -24,10 +24,10 @@
 
 	const navBarItems = [
 		{
-			id: "new-request",
-			title: "New Request",
+			id: "prepare-request",
+			title: "Prepare Request",
 			icon: "mdi:globe",
-			rgx: /\/new\-request/,
+			rgx: /\/prepare\-request/,
 		},
 		{
 			id: "bookmarks",

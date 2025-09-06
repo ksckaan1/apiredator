@@ -16,6 +16,7 @@
 		GetCurrentRequest,
 		SetCurrentRequest,
 		StartCurrentRequest,
+		IsCurrentRequestExists,
 	} from "$lib/wailsjs/go/service/AppService";
 	import { models } from "$lib/wailsjs/go/models";
 	import { goto } from "$app/navigation";
@@ -93,6 +94,7 @@
 	$effect(() => {
 		(async () => {
 			try {
+				if (!(await IsCurrentRequestExists())) return;
 				let cr = await GetCurrentRequest();
 
 				if (cr) {
@@ -154,7 +156,7 @@
 </script>
 
 <div class="w-full p-5 mx-auto max-w-7xl flex-1 flex flex-col">
-	<h1 class="mb-3 text-3xl">New Request</h1>
+	<h1 class="mb-3 text-3xl">Prepare Request</h1>
 	<div class="w-full grid grid-cols-[8rem_1fr_7rem] gap-x-2">
 		<DropdownSelect
 			items={requestMethods}

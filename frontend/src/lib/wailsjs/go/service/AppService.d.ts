@@ -16,6 +16,8 @@ export function GetCurrentRequest():Promise<models.Data>;
 
 export function GetStats():Promise<models.Stat>;
 
+export function IsCurrentRequestExists():Promise<boolean>;
+
 export function IsWorkActive():Promise<boolean>;
 
 export function ResetCurrentRequest():Promise<void>;

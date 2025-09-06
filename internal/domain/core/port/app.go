@@ -10,6 +10,7 @@ type AppService interface {
 	Startup(ctx context.Context)
 	SetCurrentRequest(data models.Data) error
 	GetCurrentRequest() (*models.Data, error)
+	IsCurrentRequestExists() bool
 	StartCurrentRequest() error
 	ResetCurrentRequest() error
 	SelectFiles(isMultiple bool) []string

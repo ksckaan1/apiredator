@@ -69,6 +69,10 @@ func (a *AppService) GetCurrentRequest() (*models.Data, error) {
 	return data, nil
 }
 
+func (a *AppService) IsCurrentRequestExists() bool {
+	return a.currentWork != nil
+}
+
 func (a *AppService) StartCurrentRequest() error {
 	if a.currentWork == nil {
 		a.logger.Error(a.ctx, "current request not found")
