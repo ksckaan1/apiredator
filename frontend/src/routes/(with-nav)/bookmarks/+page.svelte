@@ -1,6 +1,4 @@
 <script lang="ts">
-	import DropdownSelect from "$components/ui/DropdownSelect.svelte";
-	import TextInput from "$components/ui/TextInput.svelte";
 	import type { models } from "$lib/wailsjs/go/models";
 	import { fade, slide } from "svelte/transition";
 	import {
@@ -10,14 +8,18 @@
 	} from "$lib/wailsjs/go/service/AppService";
 	import { showToast } from "$stores/toast";
 	import DeleteBookmarksModal from "./parts/DeleteBookmarksModal.svelte";
-	import Button from "$components/ui/Button.svelte";
 	import { goto } from "$app/navigation";
 	import BookmarkCard from "./parts/BookmarkCard.svelte";
+	import BookmarkHeader from "./parts/BookmarkHeader.svelte";
+	import BookmarkPaginator from "./parts/BookmarkPaginator.svelte";
 
 	let bookmarks: models.Bookmark[] = $state([]);
 	let searchValue = $state("");
 	let tagValue = $state("");
 	let allTags: any[] = $state([]);
+	let count = $state(0);
+	let limit = $state(10);
+	let offset = $state(0);
 
 	let bouncedSearchValue = $state("");
 	let selectedBookmarks: string[] = $state([]);
@@ -35,18 +37,22 @@
 		}
 	});
 
-	const makeSearch = () => {
-		GetAllBookmarks(bouncedSearchValue, tagValue, -1, 0).then((result) => {
-			bookmarks = result.bookmarks;
-			console.log(result);
-		});
+	const makeSearch = (offsetParam: number) => {
+		GetAllBookmarks(bouncedSearchValue, tagValue, 10, offsetParam).then(
+			(result) => {
+				bookmarks = result.bookmarks;
+				count = result.count;
+				offset = result.offset;
+				count = result.count;
+			},
+		);
 	};
 
-	makeSearch();
+	makeSearch(0);
 
 	$effect(() => {
 		if (bouncedSearchValue != undefined && tagValue != undefined) {
-			makeSearch();
+			makeSearch(0);
 		}
 	});
 
@@ -57,14 +63,6 @@
 		];
 	});
 
-	const onDeselectAllButtonClicked = () => {
-		selectedBookmarks = [];
-	};
-
-	const onDeleteBookmarksButtonClicked = () => {
-		showDeleteBookmarkModal = true;
-	};
-
 	const deleteBookmarks = () => {
 		DeleteBookmarks(selectedBookmarks)
 			.then(() => {
@@ -74,7 +72,7 @@
 				});
 				selectedBookmarks = [];
 				showDeleteBookmarkModal = false;
-				makeSearch();
+				makeSearch(0);
 			})
 			.catch((e: Error) => {
 				showToast({
@@ -83,7 +81,7 @@
 				});
 				selectedBookmarks = [];
 				showDeleteBookmarkModal = false;
-				makeSearch();
+				makeSearch(0);
 			});
 	};
 
@@ -109,50 +107,22 @@
 	class="h-[calc(100vh-40px)] flex flex-col"
 >
 	<div class="flex-1 hide-scrollbar overflow-y-auto flex flex-col px-5 pt-5">
-		<div class="mx-auto w-full max-w-7xl flex flex-col gap-4">
+		<div class="mx-auto w-full max-w-7xl flex flex-col gap-4 h-screen">
 			<h1 class="text-3xl">Bookmarks</h1>
-			<div class="flex gap-4">
-				<div class="flex-1">
-					<TextInput
-						bind:value={searchValue}
-						label="Search"
-						autoFocus
-					/>
-				</div>
-				<div class="w-48">
-					<DropdownSelect items={allTags} bind:value={tagValue} />
-				</div>
-			</div>
+			<BookmarkHeader
+				bind:searchValue
+				bind:tagValue
+				{allTags}
+				bind:showDeleteBookmarkModal
+				bind:selectedBookmarks
+			/>
 			{#if bookmarks && bookmarks.length > 0}
 				<div
-					class="flex flex-col pb-5 pr-[1px] gap-4 h-[calc(100vh-10.625rem)] hide-scrollbar overflow-y-scroll"
+					class:pb-5={count < 11}
+					class="flex flex-col pr-[1px] gap-4 {count > 10
+						? 'h-[calc(100vh-19rem)]'
+						: 'h-[calc(100vh-14rem)]'} hide-scrollbar overflow-y-scroll"
 				>
-					{#if selectedBookmarks.length > 0}
-						<div
-							class="sticky top-0 py-2 border-b flex justify-between items-center border-white/20 bg-default-bg z-40"
-							transition:slide={{ duration: 200 }}
-						>
-							<span>
-								{selectedBookmarks.length} bookmark(s) selected
-							</span>
-							<div class="flex items-start gap-4">
-								<Button
-									onclick={onDeselectAllButtonClicked}
-									variant="outlined"
-									icon="bx:checkbox"
-								>
-									Deselect All
-								</Button>
-								<Button
-									onclick={onDeleteBookmarksButtonClicked}
-									variant="outlined"
-									icon="ph:trash"
-								>
-									Delete Selected Ones
-								</Button>
-							</div>
-						</div>
-					{/if}
 					{#each bookmarks as bookmark (bookmark.id)}
 						<BookmarkCard
 							{bookmark}
@@ -164,6 +134,14 @@
 						/>
 					{/each}
 				</div>
+				{#if count > 10}
+					<BookmarkPaginator
+						{limit}
+						{offset}
+						{count}
+						onOffsetChange={(offset) => makeSearch(offset)}
+					/>
+				{/if}
 			{:else}
 				<div
 					class="text-center flex flex-col justify-center items-center text-white/50"
