@@ -9,7 +9,7 @@ dependencies:
     specifier: ^4.0.2
     version: 4.0.2(svelte@5.0.0-next.260)
   chart.js:
-    specifier: ^4.4.2
+    specifier: ^4.4.4
     version: 4.4.4
   lodash:
     specifier: ^4.17.21
@@ -20,40 +20,40 @@ dependencies:
 
 devDependencies:
   '@sveltejs/adapter-static':
-    specifier: ^3.0.1
+    specifier: ^3.0.5
     version: 3.0.5(@sveltejs/kit@2.5.28)
   '@sveltejs/kit':
-    specifier: ^2.0.0
+    specifier: ^2.5.28
     version: 2.5.28(@sveltejs/vite-plugin-svelte@4.0.0-next.7)(svelte@5.0.0-next.260)(vite@5.4.7)
   '@sveltejs/vite-plugin-svelte':
-    specifier: ^4.0.0-next.6
+    specifier: 4.0.0-next.7
     version: 4.0.0-next.7(svelte@5.0.0-next.260)(vite@5.4.7)
   '@types/lodash':
     specifier: ^4.17.9
     version: 4.17.9
   autoprefixer:
-    specifier: ^10.4.19
+    specifier: ^10.4.20
     version: 10.4.20(postcss@8.4.47)
   postcss:
-    specifier: ^8.4.38
+    specifier: ^8.4.47
     version: 8.4.47
   svelte:
     specifier: 5.0.0-next.260
     version: 5.0.0-next.260
   svelte-check:
-    specifier: ^3.6.0
+    specifier: ^3.8.6
     version: 3.8.6(postcss@8.4.47)(svelte@5.0.0-next.260)
   tailwindcss:
-    specifier: ^3.4.1
+    specifier: ^3.4.12
     version: 3.4.12
   tslib:
-    specifier: ^2.4.1
+    specifier: ^2.7.0
     version: 2.7.0
   typescript:
-    specifier: ^5.0.0
+    specifier: ^5.6.2
     version: 5.6.2
   vite:
-    specifier: ^5.0.3
+    specifier: ^5.4.7
     version: 5.4.7
 
 packages:
@@ -642,7 +642,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.23.3
-      caniuse-lite: 1.0.30001662
+      caniuse-lite: 1.0.30001741
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.0
@@ -688,7 +688,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001662
+      caniuse-lite: 1.0.30001741
       electron-to-chromium: 1.5.27
       node-releases: 2.0.18
       update-browserslist-db: 1.1.0(browserslist@4.23.3)
@@ -704,8 +704,8 @@ packages:
     engines: {node: '>= 6'}
     dev: true
 
-  /caniuse-lite@1.0.30001662:
-    resolution: {integrity: sha512-sgMUVwLmGseH8ZIrm1d51UbrhqMCH3jvS7gF/M6byuHOnKyLOBL7W8yz5V02OHwgLGA36o/AFhWzzh4uc5aqTA==}
+  /caniuse-lite@1.0.30001741:
+    resolution: {integrity: sha512-QGUGitqsc8ARjLdgAfxETDhRbJ0REsP6O3I96TAth/mVjh2cYzN2u+3AzPP3aVSm2FehEItaJw1xd+IGBXWeSw==}
     dev: true
 
   /chart.js@4.4.4:
