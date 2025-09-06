@@ -4,6 +4,8 @@
 		label?: string;
 		max?: number | null;
 		min?: number | null;
+		centered?: boolean;
+		onPressedEnter?: () => void;
 	}
 
 	let {
@@ -11,6 +13,8 @@
 		label = "",
 		max = null,
 		min = null,
+		centered = false,
+		onPressedEnter,
 	}: Props = $props();
 
 	let inputElem: HTMLInputElement;
@@ -28,16 +32,20 @@
 	};
 </script>
 
-<div class="wrapper" class:invalid={!isValid}>
+<button
+	class="wrapper"
+	class:invalid={!isValid}
+	onclick={() => inputElem.focus()}
+>
 	{#if label}
-		<button
+		<span
 			class="flex items-center justify-center mr-3 text-white/60 text-nowrap cursor-text"
-			onclick={() => inputElem.focus()}
 		>
 			{label}
-		</button>
+		</span>
 	{/if}
 	<input
+		class:text-center={centered}
 		class="w-full bg-transparent focus:outline-none"
 		type="text"
 		autocorrect="off"
@@ -46,14 +54,17 @@
 		bind:value
 		class:invalid={!isValid}
 		oninput={onInput}
+		onkeypress={(e) => {
+			if (e.key === "Enter") onPressedEnter?.();
+		}}
 	/>
-</div>
+</button>
 
 <style lang="postcss">
 	@reference "$styles/app.css";
 
 	.wrapper {
-		@apply flex items-center h-10 px-3 border rounded bg-accent-bg border-white/20;
+		@apply flex items-center h-10 px-3 border rounded bg-accent-bg border-white/20 cursor-text;
 	}
 
 	.wrapper:has(input:focus) {
