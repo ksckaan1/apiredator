@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { fade, fly } from "svelte/transition";
-	import { flip } from "svelte/animate";
-	import Chart from "chart.js/auto";
 	import {
 		AddToBookmark,
 		GetCurrentRequest,
@@ -22,8 +20,6 @@
 	import AddBookmarkModal from "./parts/AddBookmarkModal.svelte";
 	import ChartView from "$components/ui/ChartView.svelte";
 
-	let chartElem: HTMLCanvasElement;
-	let ch: Chart;
 	let stats: any;
 
 	let pageScroll = $state(0);
@@ -104,7 +100,7 @@
 			await StopWork();
 		}
 
-		goto("/new-request", {
+		goto("/prepare-request", {
 			replaceState: true,
 		});
 	};
@@ -137,7 +133,7 @@
 			await StopWork();
 		}
 		await ResetCurrentRequest();
-		goto("/new-request", {
+		goto("/prepare-request", {
 			replaceState: true,
 		});
 	};
@@ -266,52 +262,7 @@
 			</div>
 			<div class="w-screen bg-default-bg pointer-events-auto">
 				<div class="max-w-7xl mx-auto w-full flex-shrink-0 px-5">
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
-					<p>asdasd</p>
+					<p>scrollable content</p>
 				</div>
 			</div>
 		</div>

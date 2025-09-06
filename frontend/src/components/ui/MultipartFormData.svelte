@@ -54,7 +54,7 @@
 			class="rw grid w-full grid-cols-[8rem_1fr_7rem_1fr_3rem] border-b px-3 border-white/20 items-center"
 		>
 			<Switch bind:value={row.is_active} />
-			<TextInput bind:value={row.key} />
+			<TextInput bind:value={row.key} variant="secondary" />
 			<div class="px-4">
 				<DropdownSelect
 					bind:value={row.row_type}
@@ -68,12 +68,13 @@
 							value: "text",
 						},
 					]}
+					transparent
 				/>
 			</div>
 			{#if row.row_type === "file"}
 				<FileSelector bind:files={row.file_value} />
 			{:else}
-				<TextInput bind:value={row.text_value} />
+				<TextInput bind:value={row.text_value} variant="secondary" />
 			{/if}
 			<button aria-label="Delete row" onclick={() => deleteRow(i)}>
 				<i class="fa-regular fa-trash-can"></i>
@@ -105,6 +106,7 @@
 						value: "text",
 					},
 				]}
+				transparent
 			/>
 		</div>
 		{#if newRowType === "text"}

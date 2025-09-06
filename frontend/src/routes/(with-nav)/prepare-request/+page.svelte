@@ -22,6 +22,7 @@
 	import { goto } from "$app/navigation";
 	import { onMount } from "svelte";
 	import Options from "./parts/Options.svelte";
+	import { requestMethods } from "$lib/request-methods";
 
 	let urlValue: string = $state(
 		"https://jsonplaceholder.typicode.com/todos/1",
@@ -45,49 +46,6 @@
 	let binaryValue: string[] = $state([]);
 	let formdataValue: FormData[] = $state([]);
 	let xwwwformdataValue: KeyValueData[] = $state([]);
-
-	let requestMethods = [
-		{
-			value: "GET",
-			title: "GET",
-			color: "text-green-400",
-		},
-		{
-			value: "POST",
-			title: "POST",
-			color: "text-amber-400",
-		},
-		{
-			value: "PUT",
-			title: "PUT",
-			color: "text-sky-400",
-		},
-		{
-			value: "PATCH",
-			title: "PATCH",
-			color: "text-purple-400",
-		},
-		{
-			value: "DELETE",
-			title: "DELETE",
-			color: "text-red-400",
-		},
-		{
-			value: "HEAD",
-			title: "HEAD",
-			color: "text-pink-400",
-		},
-		{
-			value: "TRACE",
-			title: "TRACE",
-			color: "text-teal-400",
-		},
-		{
-			value: "OPTIONS",
-			title: "OPTIONS",
-			color: "text-emerald-400",
-		},
-	];
 
 	let headerRows: KeyValueData[] = $state([]);
 

@@ -13,6 +13,7 @@
 		tail?: Snippet;
 		onkeypress?: (e: KeyboardEvent) => void;
 		variant?: "primary" | "secondary";
+		transparent?: boolean;
 	}
 
 	let {
@@ -25,6 +26,7 @@
 		head,
 		tail,
 		onkeypress,
+		transparent = false,
 	}: Props = $props();
 
 	let filteredAutoComplete = $state(autoComplete);

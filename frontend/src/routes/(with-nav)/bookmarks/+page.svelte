@@ -2,21 +2,19 @@
 	import DropdownSelect from "$components/ui/DropdownSelect.svelte";
 	import TextInput from "$components/ui/TextInput.svelte";
 	import type { models } from "$lib/wailsjs/go/models";
-	import { flip } from "svelte/animate";
-	import { fade, fly, slide } from "svelte/transition";
+	import { fade, slide } from "svelte/transition";
 	import {
 		DeleteBookmarks,
 		GetAllBookmarks,
 		GetAllTags,
 	} from "$lib/wailsjs/go/service/AppService";
-	import Icon from "@iconify/svelte";
 	import { showToast } from "$stores/toast";
 	import DeleteBookmarksModal from "./parts/DeleteBookmarksModal.svelte";
 	import Button from "$components/ui/Button.svelte";
 	import { goto } from "$app/navigation";
+	import BookmarkCard from "./parts/BookmarkCard.svelte";
 
 	let bookmarks: models.Bookmark[] = $state([]);
-	let bookmarkCount = $state(0);
 	let searchValue = $state("");
 	let tagValue = $state("");
 	let allTags: any[] = $state([]);
@@ -40,7 +38,6 @@
 	const makeSearch = () => {
 		GetAllBookmarks(bouncedSearchValue, tagValue, -1, 0).then((result) => {
 			bookmarks = result.bookmarks;
-			bookmarkCount = result.count;
 			console.log(result);
 		});
 	};
@@ -59,49 +56,6 @@
 			...result.map((t) => ({ value: t, title: t })),
 		];
 	});
-
-	let requestMethods = [
-		{
-			value: "GET",
-			title: "GET",
-			color: "bg-green-700",
-		},
-		{
-			value: "POST",
-			title: "POST",
-			color: "bg-amber-700",
-		},
-		{
-			value: "PUT",
-			title: "PUT",
-			color: "bg-sky-700",
-		},
-		{
-			value: "PATCH",
-			title: "PATCH",
-			color: "bg-purple-700",
-		},
-		{
-			value: "DELETE",
-			title: "DELETE",
-			color: "bg-red-700",
-		},
-		{
-			value: "HEAD",
-			title: "HEAD",
-			color: "bg-pink-700",
-		},
-		{
-			value: "TRACE",
-			title: "TRACE",
-			color: "bg-teal-700",
-		},
-		{
-			value: "OPTIONS",
-			title: "OPTIONS",
-			color: "bg-emerald-700",
-		},
-	];
 
 	const onDeselectAllButtonClicked = () => {
 		selectedBookmarks = [];
@@ -136,9 +90,24 @@
 	const onClickBookmark = (id: string) => {
 		goto(`/inspect?id=${id}`);
 	};
+
+	const onBookmarkSelected = (id: string, selected: boolean) => {
+		if (selected && !selectedBookmarks.includes(id)) {
+			selectedBookmarks.push(id);
+			return;
+		}
+
+		selectedBookmarks = selectedBookmarks.filter(
+			(bookmarkId) => bookmarkId !== id,
+		);
+	};
 </script>
 
-<div class="h-[calc(100vh-40px)] flex flex-col">
+<div
+	in:fade={{ duration: 200, delay: 200 }}
+	out:fade={{ duration: 200 }}
+	class="h-[calc(100vh-40px)] flex flex-col"
+>
 	<div class="flex-1 hide-scrollbar overflow-y-auto flex flex-col px-5 pt-5">
 		<div class="mx-auto w-full max-w-7xl flex flex-col gap-4">
 			<h1 class="text-3xl">Bookmarks</h1>
@@ -185,97 +154,14 @@
 						</div>
 					{/if}
 					{#each bookmarks as bookmark (bookmark.id)}
-						<!-- svelte-ignore a11y_click_events_have_key_events -->
-						<!-- svelte-ignore a11y_no_static_element_interactions -->
-						<div
-							animate:flip={{ duration: 200 }}
-							transition:fade={{ duration: 200 }}
-							class="flex border overflow-hidden bg-accent-bg border-white/20 rounded flex-shrink-0 hover:bg-white/5 cursor-pointer group"
-							onclick={() => onClickBookmark(bookmark.id)}
-						>
-							<div
-								class={`${
-									requestMethods.find(
-										(r) =>
-											r.value === bookmark.request.method,
-									)?.color
-								} flex w-8 pl-1 items-center flex-shrink-0`}
-							>
-								<div
-									class="[writing-mode:vertical-lr] rotate-180"
-								>
-									{bookmark.request.method}
-								</div>
-							</div>
-							<div class="p-5 flex-1">
-								<div class="text-lg text-primary">
-									{bookmark.title || "Untitled Bookmark"}
-								</div>
-								<div class="flex gap-3">
-									<div>
-										{bookmark.request.url}
-									</div>
-								</div>
-								<div class="mt-2 text-white/30 font-light">
-									{new Date(bookmark.create_at).toString()}
-								</div>
-								<div
-									class="mt-1 flex flex-wrap gap-3 items-center"
-								>
-									<Icon
-										icon="mdi:tags"
-										class="text-white/50"
-									/>
-									{#if bookmark.tags && bookmark.tags.length > 0}
-										{#each bookmark.tags as tag}
-											<button
-												onclick={(e) => {
-													e.stopPropagation();
-													tagValue = tag;
-												}}
-												class="text-white/50 transition-colors duration-200 hover:text-primary"
-											>
-												#{tag}
-											</button>
-										{/each}
-									{:else}
-										<div class="text-white/50">No Tag</div>
-									{/if}
-								</div>
-							</div>
-							<div
-								class="flex flex-col justify-center pr-3 flex-shrink-0"
-							>
-								<input
-									type="checkbox"
-									bind:group={selectedBookmarks}
-									id={bookmark.id}
-									value={bookmark.id}
-									class="hidden"
-									onclick={(e) => e.stopPropagation()}
-								/>
-								<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-								<label
-									for={bookmark.id}
-									class="cursor-pointer"
-									onclick={(e) => e.stopPropagation()}
-								>
-									{#if selectedBookmarks.includes(bookmark.id)}
-										<Icon
-											icon="bxs:checkbox"
-											width="40"
-											class="text-primary"
-										/>
-									{:else}
-										<Icon
-											icon="bx:checkbox"
-											width="40"
-											class="text-white/30 opacity-0 group-hover:opacity-100"
-										/>
-									{/if}
-								</label>
-							</div>
-						</div>
+						<BookmarkCard
+							{bookmark}
+							{onClickBookmark}
+							bind:tagValue
+							selected={selectedBookmarks.includes(bookmark.id)}
+							onBookmarkSelected={(selected) =>
+								onBookmarkSelected(bookmark.id, selected)}
+						/>
 					{/each}
 				</div>
 			{:else}

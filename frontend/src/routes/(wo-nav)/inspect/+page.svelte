@@ -77,7 +77,7 @@
 			}),
 		)
 			.then(() => {
-				goto("/new-request");
+				goto("/prepare-request");
 			})
 			.catch((e: Error) => {
 				showToast({
