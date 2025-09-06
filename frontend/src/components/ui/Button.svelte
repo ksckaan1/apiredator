@@ -15,6 +15,7 @@
 		icon?: string;
 		iconSize?: number;
 		children?: Snippet;
+		disabled?: boolean;
 	}
 
 	let {
@@ -23,18 +24,27 @@
 		iconSize = 26,
 		onclick,
 		children,
+		disabled = false,
 	}: Props = $props();
+
+	const onClick = (e: MouseEvent) => {
+		if (disabled) return;
+		onclick?.(e);
+	};
 </script>
 
 <button
-	class="h-10 px-3 border rounded border-white/20 flex gap-x-2 items-center hover:opacity-70"
+	class="h-10 px-3 border rounded border-white/20 flex gap-x-2 items-center hover:opacity-70 {disabled
+		? 'opacity-50 cursor-not-allowed'
+		: ''}"
 	class:primary={variant === "primary"}
 	class:success={variant === "success"}
 	class:danger={variant === "danger"}
 	class:outlined={variant === "outlined"}
 	class:outlined-danger={variant === "outlined-danger"}
 	class:transparent={variant === "transparent"}
-	{onclick}
+	{disabled}
+	onclick={onClick}
 >
 	{#if icon}
 		<Icon {icon} width={iconSize} />

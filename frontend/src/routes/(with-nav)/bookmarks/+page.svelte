@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { models } from "$lib/wailsjs/go/models";
-	import { fade, slide } from "svelte/transition";
+	import { fade } from "svelte/transition";
 	import {
 		DeleteBookmarks,
 		GetAllBookmarks,
@@ -14,9 +14,11 @@
 	import BookmarkPaginator from "./parts/BookmarkPaginator.svelte";
 
 	let bookmarks: models.Bookmark[] = $state([]);
+	let shownBookmarks: models.Bookmark[] = $derived(bookmarks.slice(0, 10));
 	let searchValue = $state("");
 	let tagValue = $state("");
 	let allTags: any[] = $state([]);
+	let allIDs: string[] = $derived(bookmarks.map((bookmark) => bookmark.id));
 	let count = $state(0);
 	let limit = $state(10);
 	let offset = $state(0);
@@ -39,22 +41,21 @@
 		}
 	});
 
-	const makeSearch = (offsetParam: number) => {
-		GetAllBookmarks(bouncedSearchValue, tagValue, 10, offsetParam).then(
-			(result) => {
-				bookmarks = result.bookmarks;
-				count = result.count;
-				offset = result.offset;
-				count = result.count;
-			},
-		);
+	const makeSearch = () => {
+		GetAllBookmarks(bouncedSearchValue, tagValue, -1, 0).then((result) => {
+			bookmarks = result.bookmarks;
+			// shownBookmarks = bookmarks.slice(offset, offset + limit);
+			count = result.count;
+			offset = 0;
+			count = result.count;
+		});
 	};
 
-	makeSearch(0);
+	makeSearch();
 
 	$effect(() => {
 		if (bouncedSearchValue != undefined && tagValue != undefined) {
-			makeSearch(0);
+			makeSearch();
 		}
 	});
 
@@ -72,18 +73,17 @@
 					type: "success",
 					message: `${selectedBookmarks.length} bookmark(s) deleted`,
 				});
-				selectedBookmarks = [];
-				showDeleteBookmarkModal = false;
-				makeSearch(0);
 			})
 			.catch((e: Error) => {
 				showToast({
 					type: "error",
 					message: e.message,
 				});
+			})
+			.finally(() => {
 				selectedBookmarks = [];
 				showDeleteBookmarkModal = false;
-				makeSearch(0);
+				makeSearch();
 			});
 	};
 
@@ -101,6 +101,15 @@
 			(bookmarkId) => bookmarkId !== id,
 		);
 	};
+
+	const onOffsetChange = (offsetParam: number) => {
+		const start = offsetParam;
+		const end = offsetParam + limit;
+
+		shownBookmarks = bookmarks.slice(start, end);
+
+		offset = offsetParam;
+	};
 </script>
 
 <div
@@ -117,15 +126,16 @@
 				{allTags}
 				bind:showDeleteBookmarkModal
 				bind:selectedBookmarks
+				{allIDs}
 			/>
-			{#if bookmarks && bookmarks.length > 0}
+			{#if shownBookmarks}
 				<div
 					class:pb-5={count < 11}
 					class="flex flex-col pr-[1px] gap-4 {count > 10
 						? 'h-[calc(100vh-19rem)]'
 						: 'h-[calc(100vh-14rem)]'} hide-scrollbar overflow-y-scroll"
 				>
-					{#each bookmarks as bookmark (bookmark.id)}
+					{#each shownBookmarks as bookmark (bookmark.id)}
 						<BookmarkCard
 							{bookmark}
 							{onClickBookmark}
@@ -142,7 +152,7 @@
 						{limit}
 						{offset}
 						{count}
-						onOffsetChange={(offset) => makeSearch(offset)}
+						{onOffsetChange}
 					/>
 				{/if}
 			{:else}

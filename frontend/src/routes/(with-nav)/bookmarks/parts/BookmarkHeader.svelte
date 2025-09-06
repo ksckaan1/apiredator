@@ -8,6 +8,7 @@
 		searchValue: string;
 		tagValue: string;
 		allTags: string[];
+		allIDs: string[];
 		selectedBookmarks: string[];
 		showDeleteBookmarkModal: boolean;
 	}
@@ -16,9 +17,14 @@
 		searchValue = $bindable(""),
 		tagValue = $bindable(""),
 		allTags,
+		allIDs = [],
 		selectedBookmarks = $bindable([]),
 		showDeleteBookmarkModal = $bindable(false),
 	}: Props = $props();
+
+	const onSelectAllButtonClicked = () => {
+		selectedBookmarks = allIDs;
+	};
 
 	const onDeselectAllButtonClicked = () => {
 		selectedBookmarks = [];
@@ -45,22 +51,30 @@
 		{selectedBookmarks.length} bookmark{#if selectedBookmarks.length > 1}s{/if}
 		selected
 	</span>
-	{#if selectedBookmarks.length > 0}
-		<div transition:fade={{ duration: 200 }} class="flex items-start gap-4">
-			<Button
-				onclick={onDeselectAllButtonClicked}
-				variant="transparent"
-				icon="bx:checkbox"
-			>
-				Deselect All
-			</Button>
-			<Button
-				onclick={onDeleteBookmarksButtonClicked}
-				variant="transparent"
-				icon="ph:trash"
-			>
-				Delete Selected
-			</Button>
-		</div>
-	{/if}
+	<div class="flex">
+		<Button
+			onclick={onSelectAllButtonClicked}
+			variant="transparent"
+			icon="bxs:checkbox"
+			disabled={selectedBookmarks.length === allIDs.length}
+		>
+			Select All
+		</Button>
+		<Button
+			onclick={onDeselectAllButtonClicked}
+			variant="transparent"
+			icon="bx:checkbox"
+			disabled={selectedBookmarks.length === 0}
+		>
+			Deselect All
+		</Button>
+		<Button
+			onclick={onDeleteBookmarksButtonClicked}
+			variant="transparent"
+			icon="ph:trash"
+			disabled={selectedBookmarks.length === 0}
+		>
+			Delete Selected
+		</Button>
+	</div>
 </div>
