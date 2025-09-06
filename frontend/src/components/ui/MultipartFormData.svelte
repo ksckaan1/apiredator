@@ -42,7 +42,7 @@
 
 <div>
 	<div
-		class="grid grid-cols-[8rem,1fr,7rem,1fr,3rem] border-b border-white/20"
+		class="grid grid-cols-[8rem_1fr_7rem_1fr_3rem] border-b border-white/20"
 	>
 		<div class="font-bold my-2 px-3">Using?</div>
 		<div class="font-bold my-2 px-6">Key</div>
@@ -51,7 +51,7 @@
 	</div>
 	{#each rows as row, i}
 		<div
-			class="rw grid w-full grid-cols-[8rem,1fr,7rem,1fr,3rem] border-b px-3 border-white/20 items-center"
+			class="rw grid w-full grid-cols-[8rem_1fr_7rem_1fr_3rem] border-b px-3 border-white/20 items-center"
 		>
 			<Switch bind:value={row.is_active} />
 			<TextInput bind:value={row.key} />
@@ -81,7 +81,7 @@
 		</div>
 	{/each}
 	<div
-		class="grid w-full grid-cols-[8rem,1fr,7rem,1fr,3rem] border-b px-3 border-white/20 items-center"
+		class="grid w-full grid-cols-[8rem_1fr_7rem_1fr_3rem] border-b px-3 border-white/20 items-center"
 	>
 		<span></span>
 		<input
@@ -126,6 +126,8 @@
 </div>
 
 <style lang="postcss">
+	@reference "$styles/app.css";
+
 	.rw:nth-child(odd) {
 		@apply bg-default-bg;
 	}

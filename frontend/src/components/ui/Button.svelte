@@ -1,60 +1,75 @@
 <script lang="ts">
-    import Icon from "@iconify/svelte";
-    import type { Snippet } from "svelte";
+	import Icon from "@iconify/svelte";
+	import type { Snippet } from "svelte";
 
-  interface Props {
-    variant?: "primary" | "secondary" | "danger" | "transparent" | "outlined" | "outlined-danger" | "success";
-    onclick?: (e: MouseEvent) => void;
-    icon?: string;
-    iconSize?: number;
-    children?: Snippet;
-  }
+	interface Props {
+		variant?:
+			| "primary"
+			| "secondary"
+			| "danger"
+			| "transparent"
+			| "outlined"
+			| "outlined-danger"
+			| "success";
+		onclick?: (e: MouseEvent) => void;
+		icon?: string;
+		iconSize?: number;
+		children?: Snippet;
+	}
 
-  let { variant = "primary", icon, iconSize = 26, onclick, children }: Props = $props();
+	let {
+		variant = "primary",
+		icon,
+		iconSize = 26,
+		onclick,
+		children,
+	}: Props = $props();
 </script>
 
 <button
-  class="h-10 px-3 border rounded border-white/20 flex gap-x-2 items-center hover:opacity-70"
-  class:primary={variant === "primary"}
-  class:success={variant === "success"}
-  class:danger={variant === "danger"}
-  class:outlined={variant === "outlined"}
-  class:outlined-danger={variant === "outlined-danger"}
-  class:transparent={variant === "transparent"}
-  {onclick}
+	class="h-10 px-3 border rounded border-white/20 flex gap-x-2 items-center hover:opacity-70"
+	class:primary={variant === "primary"}
+	class:success={variant === "success"}
+	class:danger={variant === "danger"}
+	class:outlined={variant === "outlined"}
+	class:outlined-danger={variant === "outlined-danger"}
+	class:transparent={variant === "transparent"}
+	{onclick}
 >
-  {#if icon}
-    <Icon icon={icon} width={iconSize} />
-  {/if}
-  {#if children}
-    <span>
-      {@render children()}
-    </span>
-  {/if}
+	{#if icon}
+		<Icon {icon} width={iconSize} />
+	{/if}
+	{#if children}
+		<span>
+			{@render children()}
+		</span>
+	{/if}
 </button>
 
 <style lang="postcss">
-  .primary {
-    @apply bg-primary text-on-primary;
-  }
+	@reference "$styles/app.css";
 
-  .success{
-    @apply bg-green-900 text-green-300;
-  }
+	.primary {
+		@apply bg-primary text-on-primary;
+	}
 
-  .danger {
-    @apply bg-red-900 text-red-300;
-  }
+	.success {
+		@apply bg-green-900 text-green-300;
+	}
 
-  .outlined{
-    @apply bg-transparent text-white/70 hover:text-primary border border-white/20 hover:border-primary;
-  }
+	.danger {
+		@apply bg-red-900 text-red-300;
+	}
 
-  .outlined-danger{
-    @apply bg-transparent text-white/70 hover:text-red-700 border border-white/20 hover:border-red-700;
-  }
+	.outlined {
+		@apply bg-transparent text-white/70 hover:text-primary border border-white/20 hover:border-primary;
+	}
 
-  .transparent {
-    @apply border-none bg-transparent text-white/80 hover:text-primary;
-  }
+	.outlined-danger {
+		@apply bg-transparent text-white/70 hover:text-red-700 border border-white/20 hover:border-red-700;
+	}
+
+	.transparent {
+		@apply border-none bg-transparent text-white/80 hover:text-primary;
+	}
 </style>

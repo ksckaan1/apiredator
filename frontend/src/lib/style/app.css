@@ -1,37 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+:root {
+	--color-default-bg: #0d0f18;
+	--color-accent-bg: #1d2027;
+	--color-primary: #e1af4b;
+	--color-on-primary: #734d00;
+}
+
+/* Tailwind 4 theme extension */
+@theme {
+	--color-default-bg: var(--color-default-bg);
+	--color-accent-bg: var(--color-accent-bg);
+	--color-primary: var(--color-primary);
+	--color-on-primary: var(--color-on-primary);
+}
 
 body {
-  @apply bg-default-bg text-zinc-100 overflow-hidden;
+	@apply bg-default-bg text-zinc-100 overflow-hidden;
 }
 
 :not(input, textarea, .selectable, .selectable *) {
-  @apply select-none;
+	@apply select-none;
 }
 
 hr {
-  @apply border-t-white/10;
+	@apply border-t-white/10;
 }
 
 .tile {
-  @apply border border-white/20 rounded bg-accent-bg p-5 h-full;
+	@apply border border-white/20 rounded bg-accent-bg p-5 h-full;
 }
 
 .tile h1 {
-  @apply text-2xl opacity-50 font-extralight;
+	@apply text-2xl opacity-50 font-extralight;
 }
 
 .tile .bl {
-  @apply border-l-4 border-white/10 pl-2;
+	@apply border-l-4 border-white/10 pl-2;
 }
 
 .tile h2 {
-  @apply text-lg font-extralight text-primary;
+	@apply text-lg font-extralight text-primary;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-  width: 0px;
-  display: none;
+	width: 0px;
+	display: none;
 }
